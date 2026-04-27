@@ -73,6 +73,15 @@
             opacity: 0.2;
             border: 1px solid rgba(var(--color-primary), 0.1);
         }
+        /* Global Pointer Cursor */
+        button, 
+        [role="button"], 
+        .cursor-pointer,
+        [wire\:click],
+        [x-on\:click],
+        [\@click] {
+            cursor: pointer !important;
+        }
     </style>
 @endpush
 
@@ -100,12 +109,16 @@
                         <p class="relative z-10 text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Portfolio
                             Value</p>
                         <div class="relative z-10 flex items-baseline gap-2">
-                            <span class="text-4xl font-black tracking-tighter text-white leading-none">$87,521.42</span>
+                            <span class="text-4xl font-black tracking-tighter text-white leading-none">${{ number_format($this->totalPortfolioValue, 2) }}</span>
                         </div>
+                        @php
+                            $portfolioChange = $this->totalPortfolioChange;
+                            $isPositive = $portfolioChange >= 0;
+                        @endphp
                         <div
-                            class="relative z-10 inline-flex items-center gap-1.5 bg-success/20 text-success px-3 py-1 rounded-full border border-success/40 backdrop-blur-md">
-                            <i data-lucide="trending-up" class="w-3 h-3"></i>
-                            <span class="text-[10px] font-black">+4.25% Today</span>
+                            class="relative z-10 inline-flex items-center gap-1.5 {{ $isPositive ? 'bg-success/20 text-success border-success/40' : 'bg-error/20 text-error border-error/40' }} px-3 py-1 rounded-full border backdrop-blur-md">
+                            <i data-lucide="{{ $isPositive ? 'trending-up' : 'trending-down' }}" class="w-3 h-3"></i>
+                            <span class="text-[10px] font-black">{{ $isPositive ? '+' : '' }}{{ number_format($portfolioChange, 2) }}% Today</span>
                         </div>
                     </div>
                 </div>
@@ -150,77 +163,100 @@
                 </div>
 
                 <!-- Asset List with Stacking & Notches -->
-                <div class="space-y-12">
+                <!-- Asset List -->
+                <div class="space-y-6">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Your Portfolio</h2>
-                        <button class="text-[10px] font-bold text-primary hover:underline tracking-widest uppercase">View
-                            All</button>
+                        <button wire:click="$toggle('showAllAssets')" class="text-[10px] font-bold text-primary hover:underline tracking-widest uppercase">
+                            {{ $showAllAssets ? 'Show Less' : 'View All' }}
+                        </button>
                     </div>
 
                     <div class="space-y-3">
-                        @foreach($this->assets as $index => $asset)
-                            <div class="relative group cursor-pointer">
-                                <!-- Premium Glass Container -->
+                        @php
+                            $displayAssets = $showAllAssets ? $this->assets : collect($this->assets)->take(5);
+                        @endphp
+                        @foreach($displayAssets as $asset)
+                            <div class="relative group cursor-pointer" wire:click="selectAsset('{{ $asset['id'] }}')">
                                 <div class="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-[1.5rem] backdrop-blur-xl group-hover:bg-white/[0.06] group-hover:border-white/20 transition-all duration-500 ring-1 ring-white/5 shadow-xl"
                                     style="box-shadow: 0 10px 30px -10px {{ $asset['color'] }}15"></div>
 
                                 <div class="relative z-10 p-4 flex items-center justify-between h-full">
-                                    <!-- Dynamic Brand Glow -->
                                     <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full blur-[40px] opacity-10 group-hover:opacity-15 transition-opacity duration-700"
                                         style="background-color: {{ $asset['color'] }}"></div>
 
                                     <div class="flex items-center gap-3">
-                                        <!-- Real Asset Icon with Glowing Squircle -->
-                                        <div
-                                            class="w-11 h-11 rounded-xl flex items-center justify-center shadow-xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500 bg-[#0A0C10] border border-white/10">
-                                            <!-- Inner brand glow -->
+                                        <div class="w-11 h-11 rounded-xl flex items-center justify-center shadow-xl relative overflow-hidden group-hover:scale-105 transition-transform duration-500 bg-[#0A0C10] border border-white/10">
                                             <div class="absolute inset-0 opacity-40 blur-md transition-opacity duration-500 group-hover:opacity-60"
                                                 style="background-color: {{ $asset['color'] }}"></div>
-                                            <div
-                                                class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-50">
-                                            </div>
-                                            @if(!empty($asset['image']))
-                                                <img src="{{ $asset['image'] }}"
-                                                    class="w-6 h-6 relative z-10 drop-shadow-[0_0_6px_{{ $asset['color'] }}60]"
-                                                    alt="{{ $asset['name'] }}">
-                                            @else
-                                                <span
-                                                    class="relative z-10 text-sm font-black text-white">{{ substr($asset['symbol'], 0, 1) }}</span>
-                                            @endif
+                                            <div class="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-50"></div>
+                                            <img src="{{ $asset['image'] }}" class="w-6 h-6 relative z-10 drop-shadow-[0_0_6px_{{ $asset['color'] }}60]" alt="{{ $asset['name'] }}">
                                         </div>
 
                                         <div class="flex flex-col">
-                                            <span
-                                                class="text-sm font-black text-white tracking-tight leading-tight">{{ $asset['name'] }}</span>
-                                            <span
-                                                class="text-[9px] font-bold text-white/30 uppercase tracking-[0.15em] mt-0.5">{{ $asset['balance'] }}
-                                                {{ $asset['symbol'] }}</span>
+                                            <span class="text-sm font-black text-white tracking-tight leading-tight">{{ $asset['name'] }}</span>
+                                            <span class="text-[9px] font-bold text-white/30 uppercase tracking-[0.15em] mt-0.5">{{ $asset['balance'] }} {{ $asset['symbol'] }}</span>
                                         </div>
                                     </div>
 
                                     <div class="flex flex-col items-end gap-1">
-                                        <!-- Percentage Badge with Trend Icon -->
-                                        <div
-                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
-                                            @if(str_contains($asset['change'], '+'))
-                                                <i data-lucide="trending-up" class="w-2.5 h-2.5 text-success"></i>
-                                            @elseif(str_contains($asset['change'], '-'))
-                                                <i data-lucide="trending-down" class="w-2.5 h-2.5 text-error"></i>
-                                            @endif
-                                            <span
-                                                class="text-[8px] font-black tracking-wider {{ str_contains($asset['change'], '+') ? 'text-success' : (str_contains($asset['change'], '-') ? 'text-error' : 'text-white/30') }}">
+                                        <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                                            <i data-lucide="{{ str_contains($asset['change'], '+') ? 'trending-up' : 'trending-down' }}" class="w-2.5 h-2.5 {{ str_contains($asset['change'], '+') ? 'text-success' : 'text-error' }}"></i>
+                                            <span class="text-[8px] font-black tracking-wider {{ str_contains($asset['change'], '+') ? 'text-success' : 'text-error' }}">
                                                 {{ str_replace(['+', '-'], '', $asset['change']) }}
                                             </span>
                                         </div>
-
-                                        <div class="flex flex-col items-end">
-                                            <span
-                                                class="text-base font-black text-white tracking-tighter leading-none">${{ $asset['usd'] }}</span>
-                                        </div>
+                                        <span class="text-base font-black text-white tracking-tighter leading-none whitespace-nowrap">${{ $asset['usd'] }}</span>
                                     </div>
                                 </div>
                             </div>
                         @endforeach
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Section -->
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Recent Transactions</h2>
+                        <button wire:click="setView('transactions')" class="text-[10px] font-bold text-primary hover:underline tracking-widest uppercase">View All</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        @forelse(collect($this->transactions)->take(3) as $transaction)
+                            <div class="relative group cursor-pointer" wire:click="selectTransaction('{{ $transaction->id }}')">
+                                <div class="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-[1.5rem] backdrop-blur-xl group-hover:bg-white/[0.06] group-hover:border-white/20 transition-all duration-500 ring-1 ring-white/5 shadow-xl"></div>
+
+                                <div class="relative z-10 p-4 flex items-center justify-between h-full">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-11 h-11 rounded-xl flex items-center justify-center shadow-xl relative overflow-hidden bg-[#0A0C10] border border-white/10">
+                                            <div class="absolute inset-0 opacity-20 blur-md bg-primary"></div>
+                                            <i data-lucide="{{ $transaction->type === 'send' ? 'arrow-up-right' : 'arrow-down-left' }}" class="w-5 h-5 text-white relative z-10"></i>
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-black text-white tracking-tight leading-tight">
+                                                {{ $transaction->type === 'send' ? 'Sent' : 'Received' }} {{ strtoupper($transaction->asset_id) }}
+                                            </span>
+                                            <span class="text-[9px] font-bold text-white/30 uppercase tracking-[0.15em] mt-0.5">
+                                                {{ $transaction->created_at->diffForHumans() }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-base font-black text-white tracking-tighter leading-none whitespace-nowrap">
+                                            {{ $transaction->type === 'send' ? '-' : '+' }}{{ number_format($transaction->amount, 4) }}
+                                        </span>
+                                        <span class="text-[8px] font-bold text-success uppercase tracking-widest mt-1">Completed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="py-8 flex flex-col items-center justify-center text-center space-y-3 opacity-40">
+                                <i data-lucide="history" class="w-6 h-6"></i>
+                                <p class="text-[10px] font-bold uppercase tracking-widest">No recent history</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -311,13 +347,22 @@
                         <div class="flex flex-col items-center relative z-10">
                             <div class="flex items-baseline gap-2">
                                 <span class="text-white/10 text-3xl font-black">$</span>
-                                <input type="text" placeholder="0.00"
-                                    class="bg-transparent border-none text-5xl font-black text-white p-0 w-48 text-center focus:ring-0 placeholder:text-white/5 tracking-tighter transition-all focus:scale-105">
+                                <input type="text" placeholder="0.00" wire:model.live="amount"
+                                    class="bg-transparent border-none text-5xl font-black text-white p-0 w-48 text-center focus:ring-0 focus:outline-none outline-none placeholder:text-white/5 tracking-tighter transition-all focus:scale-105">
                             </div>
-                            <p
-                                class="text-[10px] font-bold text-white/20 mt-3 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                                Available: {{ $this->selectedAsset['balance'] }} {{ $this->selectedAsset['symbol'] }}
-                            </p>
+                                @error('amount') 
+                                    <p class="text-error text-[10px] mt-1">{{ $message }}</p> 
+                                @else
+                                    @if($amount > 0)
+                                        <p class="text-primary text-[10px] mt-1 font-bold">
+                                            ≈ {{ number_format($this->amountInCrypto, 8) }} {{ $this->selectedAsset['symbol'] }}
+                                        </p>
+                                    @endif
+                                @enderror
+                                <p
+                                    class="text-[10px] font-bold text-white/20 mt-3 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                                    Available: {{ $this->selectedAsset['balance'] }} {{ $this->selectedAsset['symbol'] }}
+                                </p>
                         </div>
                     </div>
 
@@ -326,23 +371,280 @@
                         <p class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] ml-1">Recipient Address
                         </p>
                         <div class="relative">
-                            <input type="text" placeholder="Wallet address or ENS"
-                                class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder:text-white/10 focus:ring-1 focus:ring-white/20 transition-all">
-                            <button
+                            <input type="text" placeholder="Wallet address or ENS" wire:model="recipient"
+                                class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder:text-white/10 focus:ring-0 focus:outline-none outline-none transition-all">
+                            @error('recipient') <p class="text-error text-[10px] mt-1">{{ $message }}</p> @enderror
+                            <button @click="navigator.clipboard.readText().then(text => $wire.set('recipient', text))"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-white/5 text-[10px] font-black text-white/40 hover:text-white transition-colors border border-white/10 uppercase tracking-wider">Paste</button>
                         </div>
                     </div>
 
+                    <!-- Network Fee -->
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Network Fee</span>
+                        <div class="text-right">
+                            <p class="text-[10px] font-black text-white/60 tracking-tight">
+                                {{ number_format($this->networkFee, 8) }} {{ $this->selectedAsset['symbol'] }}
+                            </p>
+                            <p class="text-[8px] font-bold text-white/20 uppercase tracking-widest mt-0.5">
+                                Estimated • 0 - 30 min
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- Review Button -->
-                    <button
-                        class="w-full bg-white text-black font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        <span>Review Transfer</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <button wire:click="send"
+                        class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-[0_0_30px_rgba(var(--color-primary),0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group">
+                        <span>Send Assets</span>
+                        <i data-lucide="send" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+
+            @elseif($view === 'transactions')
+                <!-- All Transactions View -->
+                <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between">
+                        <button wire:click="setView('overview')"
+                            class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all">
+                            <i data-lucide="chevron-left" class="w-5 h-5 text-white"></i>
+                        </button>
+                        <h2 class="text-lg font-black text-white tracking-tight">Transaction History</h2>
+                        <div class="w-10"></div> <!-- Spacer -->
+                    </div>
+
+                    <div class="space-y-4">
+                        @forelse($this->transactions as $transaction)
+                            <div class="relative group cursor-pointer" wire:click="selectTransaction('{{ $transaction->id }}')">
+                                <div class="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-[1.5rem] backdrop-blur-xl group-hover:bg-white/[0.06] group-hover:border-white/20 transition-all duration-300 ring-1 ring-white/5 shadow-xl"></div>
+
+                                <div class="relative z-10 p-5 flex items-center justify-between h-full">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xl relative overflow-hidden bg-[#0A0C10] border border-white/10">
+                                            <div class="absolute inset-0 opacity-20 blur-md bg-primary"></div>
+                                            <i data-lucide="{{ $transaction->type === 'send' ? 'arrow-up-right' : 'arrow-down-left' }}" class="w-6 h-6 text-white relative z-10"></i>
+                                        </div>
+
+                                        <div class="flex flex-col">
+                                            <span class="text-base font-black text-white tracking-tight leading-tight">
+                                                {{ $transaction->type === 'send' ? 'Sent' : 'Received' }} {{ strtoupper($transaction->asset_id) }}
+                                            </span>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                                                    {{ $transaction->created_at->format('M d, Y • H:i') }}
+                                                </span>
+                                                <span class="w-1 h-1 rounded-full bg-white/10"></span>
+                                                <span class="text-[10px] font-bold text-primary/60 uppercase tracking-widest">
+                                                    {{ Str::limit($transaction->recipient_address, 8) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col items-end gap-1">
+                                        <span class="text-xl font-black text-white tracking-tighter leading-none whitespace-nowrap">
+                                            {{ $transaction->type === 'send' ? '-' : '+' }}{{ number_format($transaction->amount, 4) }}
+                                        </span>
+                                        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-success/10 border border-success/20">
+                                            <div class="w-1 h-1 rounded-full bg-success animate-pulse"></div>
+                                            <span class="text-[8px] font-black text-success uppercase tracking-widest">Confirmed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="py-20 flex flex-col items-center justify-center text-center space-y-6">
+                                <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center border border-white/10 opacity-20">
+                                    <i data-lucide="history" class="w-10 h-10"></i>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-sm font-black text-white/40 uppercase tracking-[0.2em]">No History Found</p>
+                                    <p class="text-[10px] font-bold text-white/20 max-w-[180px]">Your transaction history will appear here once you make your first transfer.</p>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            @elseif($view === 'receive')
+                <!-- Receive View Redesign -->
+                <div x-data="{ showAssets: false }" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between mb-2">
+                        <button wire:click="setView('overview')"
+                            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-all">
+                            <i data-lucide="chevron-left" class="w-5 h-5 text-white"></i>
+                        </button>
+                        <h2 class="text-base font-black text-white tracking-tight">Receive</h2>
+                        <button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-all">
+                            <i data-lucide="info" class="w-5 h-5 text-white/40"></i>
+                        </button>
+                    </div>
+
+                    <!-- Selected Asset Bar -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-white/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="relative bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-[#0A0C10] border border-white/10 flex items-center justify-center relative overflow-hidden">
+                                    <div class="absolute inset-0 opacity-20 blur-md" style="background-color: {{ $this->selectedAsset['color'] }}"></div>
+                                    <img src="{{ $this->selectedAsset['image'] }}" class="w-6 h-6 relative z-10" alt="">
+                                </div>
+                                <span class="text-sm font-black text-white">{{ $this->selectedAsset['name'] }}</span>
+                            </div>
+                            <button @click="showAssets = !showAssets" class="text-xs font-bold text-white/40 hover:text-white transition-colors">Change</button>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Asset Selector -->
+                    <div x-show="showAssets" x-collapse>
+                        <div x-data="{ 
+                                    isDown: false, 
+                                    startX: 0, 
+                                    scrollLeft: 0,
+                                    handleMouseDown(e) {
+                                        this.isDown = true;
+                                        this.startX = e.pageX - $el.offsetLeft;
+                                        this.scrollLeft = $el.scrollLeft;
+                                    },
+                                    handleMouseMove(e) {
+                                        if (!this.isDown) return;
+                                        e.preventDefault();
+                                        const x = e.pageX - $el.offsetLeft;
+                                        const walk = (x - this.startX) * 2;
+                                        $el.scrollLeft = this.scrollLeft - walk;
+                                    },
+                                    handleMouseUp() {
+                                        this.isDown = false;
+                                    }
+                                }" @mousedown="handleMouseDown"
+                            @mouseleave="handleMouseUp" @mouseup="handleMouseUp" @mousemove="handleMouseMove"
+                            class="flex gap-3 overflow-x-auto p-4 no-scrollbar cursor-grab active:cursor-grabbing select-none bg-white/[0.02] rounded-2xl border border-white/5">
+                            @foreach($this->assets as $asset)
+                                <button wire:click="selectAsset('{{ $asset['id'] }}')" @click="showAssets = false"
+                                    class="flex-shrink-0 group relative p-1 rounded-2xl transition-all duration-300 ring {{ $selectedAssetId === $asset['id'] ? 'ring-white/40' : 'ring-transparent hover:ring-white/20' }} focus:outline-none">
+                                    <div
+                                        class="relative w-12 h-12 rounded-2xl bg-[#0A0C10] border {{ $selectedAssetId === $asset['id'] ? 'border-white/40' : 'border-white/10' }} flex items-center justify-center overflow-hidden">
+                                        <div class="absolute inset-0 {{ $selectedAssetId === $asset['id'] ? 'opacity-40' : 'opacity-20' }} blur-sm"
+                                            style="background-color: {{ $asset['color'] }}"></div>
+                                        <img src="{{ $asset['image'] }}" class="w-5 h-5 relative z-10 pointer-events-none"
+                                            alt="">
+                                    </div>
+                                </button>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Main QR Card -->
+                    <div class="relative flex flex-col items-center">
+                        <div class="w-full max-w-[320px] bg-white rounded-[2.5rem] p-6 flex flex-col items-center shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+                            <!-- QR Code Container -->
+                            <div class="relative w-full aspect-square flex items-center justify-center p-2">
+                                @if($this->adminAddress)
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ urlencode($this->adminAddress) }}" 
+                                         class="w-full h-full mix-blend-multiply" 
+                                         alt="QR Code">
+                                    
+                                    <!-- Center Icon -->
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-white">
+                                            <img src="{{ $this->selectedAsset['image'] }}" class="w-5 h-5" alt="">
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- QR Label -->
+                            <div class="text-center mt-2 pb-2">
+                                <p class="text-sm font-black text-black">Scan me</p>
+                                <p class="text-[11px] font-bold text-black/40 font-mono tracking-tighter">
+                                    {{ Str::limit($this->adminAddress, 24) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Asset Warning -->
+                        <div class="mt-8 text-center max-w-[280px]">
+                            <p class="text-xs font-medium text-white/40 leading-relaxed">
+                                Send only <span class="text-white font-black">{{ $this->selectedAsset['name'] }} ({{ $this->selectedAsset['symbol'] }}) {{ $this->receiveAmount ? $this->receiveAmount . ' ' . $this->selectedAsset['symbol'] : '' }}</span> compatible tokens to this address
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Set Amount Input (Relocated & Auto-focus) -->
+                    <div x-show="$wire.isSettingAmount" x-collapse x-cloak>
+                        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in zoom-in-95 duration-300">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Request Amount</span>
+                                <button @click="$wire.isSettingAmount = false; $wire.receiveAmount = ''" class="text-[10px] font-bold text-primary">Clear</button>
+                            </div>
+                            <div class="relative">
+                                <input type="number" 
+                                    x-init="$watch('$wire.isSettingAmount', value => value && $nextTick(() => $el.focus()))"
+                                    wire:model.live="receiveAmount" 
+                                    placeholder="0.00"
+                                    class="w-full bg-transparent border-none text-2xl font-black text-white placeholder:text-white/10 focus:outline-none outline-none p-0">
+                                <div class="absolute right-0 top-1/2 -translate-y-1/2 text-sm font-black text-white/20 uppercase">{{ $this->selectedAsset['symbol'] }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Actions -->
+                    <div class="grid grid-cols-3 gap-4 pt-4">
+                        <div class="flex flex-col items-center gap-3" x-data="{ copied: false }">
+                            <button 
+                                @click="
+                                    navigator.clipboard.writeText('{{ $this->adminAddress }}'); 
+                                    copied = true; 
+                                    setTimeout(() => copied = false, 2000);
+                                    lucide.createIcons();
+                                "
+                                :class="copied ? 'bg-success border-success/50' : 'bg-white/5 border-white/10'"
+                                class="w-14 h-14 rounded-full border flex items-center justify-center text-white hover:bg-primary hover:border-primary/50 transition-all duration-300 shadow-xl group">
+                                <i x-show="!copied" data-lucide="copy" wire:key="icon-copy" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                <i x-show="copied" data-lucide="check" wire:key="icon-check" class="w-5 h-5 animate-in zoom-in"></i>
+                            </button>
+                            <span class="text-[10px] font-bold uppercase tracking-widest transition-colors" :class="copied ? 'text-success' : 'text-white/40'">
+                                <span x-text="copied ? 'Copied' : 'Copy'"></span>
+                            </span>
+                        </div>
+                        <div class="flex flex-col items-center gap-3">
+                            <button 
+                                wire:click="$toggle('isSettingAmount')"
+                                :class="$wire.isSettingAmount ? 'bg-primary border-primary/50 text-white' : 'bg-white/5 border-white/10 text-white/40'"
+                                class="w-14 h-14 rounded-full border flex items-center justify-center hover:text-white transition-all duration-300 shadow-xl">
+                                <i data-lucide="edit-3" class="w-5 h-5"></i>
+                            </button>
+                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Set Amount</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-3">
+                            <button 
+                                @click="
+                                    const url = 'https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data={{ urlencode($this->adminAddress) }}';
+                                    fetch(url).then(res => res.blob()).then(blob => {
+                                        const a = document.createElement('a');
+                                        a.href = URL.createObjectURL(blob);
+                                        a.download = 'qr-code-{{ $this->selectedAsset['symbol'] }}.png';
+                                        a.click();
+                                    });
+                                "
+                                class="w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all shadow-xl group">
+                                <i data-lucide="download" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                            </button>
+                            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Download</span>
+                        </div>
+                    </div>
+
+                    <!-- Primary Share Action -->
+                    <button 
+                        @click="if (navigator.share) { navigator.share({ title: 'Deposit {{ $this->selectedAsset['name'] }}', text: 'My {{ $this->selectedAsset['name'] }} address is: {{ $this->adminAddress }}', url: '' }) }"
+                        class="w-full bg-white/5 border border-white/10 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span class="uppercase tracking-widest text-[11px]">Share Address</span>
                     </button>
                 </div>
 
             @else
-                <!-- Detail View Header -->
+                <!-- Construction View -->
                 <div class="flex items-center justify-between mb-8">
                     <button wire:click="setView('overview')" class="btn btn-ghost btn-circle bg-white/5 border-white/10">
                         <i data-lucide="chevron-left" class="w-5 h-5 text-white"></i>
@@ -421,4 +723,175 @@
             </button>
         </div>
     </nav>
+
+    <!-- Transaction Detail Bottom Modal -->
+    <div x-data="{ open: @entangle('selectedTransactionId') }" 
+         x-show="open" 
+         x-cloak
+         class="fixed inset-0 z-[100] flex flex-col justify-end pointer-events-none"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="translate-y-full"
+         x-transition:enter-end="translate-y-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="translate-y-0"
+         x-transition:leave-end="translate-y-full">
+        
+        <!-- Backdrop -->
+        <div x-show="open" 
+             @click="open = null"
+             class="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"></div>
+
+        <!-- Modal Content -->
+        @if($this->selectedTransaction)
+            @php
+                $asset = collect($this->assets)->firstWhere('id', $this->selectedTransaction->asset_id);
+                $color = $asset['color'] ?? '#F7931A';
+            @endphp
+            <div class="relative w-full max-w-md mx-auto bg-[#0A0C10] rounded-t-[3rem] p-8 pb-12 pointer-events-auto border-t border-white/10 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                <!-- Branding Glow: Focused vibrant atmospheric lighting -->
+                <div class="absolute -top-40 -right-40 w-[120%] h-[500px] blur-[100px] opacity-[0.4] pointer-events-none"
+                     style="background: radial-gradient(circle at 100% 0%, {{ $color }} 0%, transparent 70%); z-index: 1;"></div>
+                <div class="absolute top-0 inset-x-0 h-48 pointer-events-none opacity-[0.2]"
+                     style="background: linear-gradient(135deg, {{ $color }}40 0%, transparent 60%); z-index: 2;"></div>
+                <div class="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" style="z-index: 3;"></div>
+                
+                <!-- Content Layer -->
+                <div class="relative z-10">
+                    <!-- Pull Bar -->
+                    <div class="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8 cursor-pointer" @click="open = null"></div>
+
+                    <div class="flex flex-col items-center text-center space-y-6">
+                        <!-- Asset Icon -->
+                        <div class="relative">
+                            <div class="w-20 h-20 rounded-3xl bg-[#0A0C10] border-2 border-white/10 flex items-center justify-center relative overflow-hidden shadow-2xl">
+                                <div class="absolute inset-0 opacity-40 blur-xl" style="background-color: {{ $color }}"></div>
+                                <img src="{{ $asset['image'] }}" class="w-10 h-10 relative z-10" alt="">
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-success flex items-center justify-center border-4 border-[#0A0C10] shadow-xl">
+                                <i data-lucide="{{ $this->selectedTransaction->type === 'send' ? 'arrow-up' : 'arrow-down' }}" class="w-4 h-4 text-[#0A0C10] stroke-[3px]"></i>
+                            </div>
+                        </div>
+
+                        <!-- Title & Date -->
+                        <div class="space-y-1">
+                            <h3 class="text-xl font-black text-white tracking-tight">
+                                {{ $this->selectedTransaction->type === 'send' ? 'Sent' : 'Received' }} {{ $asset['name'] }}
+                            </h3>
+                            <p class="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em]">
+                                {{ $this->selectedTransaction->created_at->format('F d, Y • h:i A') }}
+                            </p>
+                        </div>
+
+                        <!-- Amount -->
+                        <div class="space-y-2">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-5xl font-black text-white tracking-tighter">{{ number_format($this->selectedTransaction->amount, 4) }}</span>
+                                <span class="text-xl font-black text-white/40">{{ $asset['symbol'] }}</span>
+                            </div>
+                            <p class="text-xs font-bold text-white/20 uppercase tracking-widest flex items-center justify-center gap-2">
+                                <span>~ ${{ number_format($this->selectedTransaction->amount * (float)str_replace(',', '', $asset['usd']), 2) }} USD</span>
+                                <i data-lucide="arrow-up-down" class="w-3 h-3"></i>
+                            </p>
+                        </div>
+
+                        <!-- Details Table -->
+                        <div class="w-full bg-white/[0.02] border border-white/10 rounded-[2rem] p-6 mt-4 space-y-5 backdrop-blur-xl">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">
+                                    {{ $this->selectedTransaction->type === 'send' ? 'To' : 'From' }}
+                                </span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-5 h-5 rounded-full overflow-hidden bg-primary/20">
+                                        <img src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover" alt="">
+                                    </div>
+                                    <span class="text-[11px] font-bold text-white tracking-tight">{{ Str::limit($this->selectedTransaction->recipient_address, 16) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">Status</span>
+                                <span class="text-[11px] font-black text-success uppercase tracking-widest">{{ ucfirst($this->selectedTransaction->status) }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">Network fee</span>
+                                <span class="text-[11px] font-bold text-white tracking-tight">${{ $this->selectedTransaction->network_fee ?? '3.54' }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between group cursor-pointer" @click="navigator.clipboard.writeText('{{ $this->selectedTransaction->hash }}')">
+                                <span class="text-[10px] font-black text-white/30 uppercase tracking-widest">Transaction ID</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[11px] font-bold text-white tracking-tight">{{ Str::limit($this->selectedTransaction->hash, 16) }}</span>
+                                    <i data-lucide="external-link" class="w-3 h-3 text-white/40 group-hover:text-white transition-colors"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <!-- Processing Overlay -->
+    <div wire:loading.flex wire:target="send"
+         class="fixed inset-0 z-[200] flex items-center justify-center bg-[#0A0C10]/90 backdrop-blur-xl">
+        <div class="flex flex-col items-center space-y-6">
+            <div class="relative">
+                <div class="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <i data-lucide="send" class="w-8 h-8 text-primary animate-pulse"></i>
+                </div>
+            </div>
+            <div class="space-y-1 text-center">
+                <h3 class="text-xl font-black text-white tracking-tighter">Processing Transaction</h3>
+                <p class="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Securing on blockchain...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div x-data="{ show: @entangle('showSuccessModal') }" x-show="show" x-cloak
+         class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100">
+        <div class="bg-[#0A0C10] w-full max-w-sm rounded-[3rem] p-8 border border-white/10 shadow-2xl relative overflow-hidden text-center space-y-8">
+            <!-- Glow background -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-success/20 blur-[100px] -z-10"></div>
+            
+            <div class="relative inline-flex">
+                <div class="w-24 h-24 rounded-full bg-success/10 border-4 border-success/20 flex items-center justify-center relative">
+                    <div class="absolute inset-0 bg-success/20 rounded-full animate-ping opacity-20"></div>
+                    <i data-lucide="check-circle" class="w-12 h-12 text-success"></i>
+                </div>
+                <!-- Confetti particles (simplified dots) -->
+                <div class="absolute -top-4 -right-4 w-2 h-2 rounded-full bg-success/40 animate-bounce"></div>
+                <div class="absolute -bottom-2 -left-6 w-3 h-3 rounded-full bg-primary/40 animate-bounce delay-75"></div>
+            </div>
+
+            <div class="space-y-2">
+                <h2 class="text-3xl font-black text-white tracking-tighter">Transfer Successful!</h2>
+                <p class="text-[11px] font-bold text-white/40 leading-relaxed max-w-[240px] mx-auto uppercase tracking-wider">
+                    Your assets have been sent successfully. They are now being confirmed on the network.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <button wire:click="closeSuccessModal" 
+                        class="w-full bg-white text-[#0A0C10] font-black py-4 rounded-2xl hover:scale-[1.02] transition-transform active:scale-95 shadow-xl">
+                    Done
+                </button>
+                <button wire:click="setView('transactions')" @click="show = false"
+                        class="w-full bg-white/5 text-white font-black py-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
+                    View Transaction History
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

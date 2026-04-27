@@ -6,8 +6,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new #[Layout('layouts::dashboard')] class extends Component
-{
+new #[Layout('layouts::dashboard')] class extends Component {
     #[Url]
     public string $token = '';
 
@@ -26,7 +25,7 @@ new #[Layout('layouts::dashboard')] class extends Component
         if ($user) {
             Auth::login($user);
             $this->status = 'success';
-            $this->redirectIntended(route('app.dashboard'), navigate: true);
+            $this->redirect(route('app.dashboard'));
         } else {
             $this->status = 'invalid';
         }

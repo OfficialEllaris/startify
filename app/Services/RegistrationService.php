@@ -65,6 +65,19 @@ class RegistrationService
                 'submitted_at' => now(),
             ]);
 
+            // Provision the Wallet
+            $jsonPath = database_path('data/assets.json');
+            $assetList = file_exists($jsonPath) ? json_decode(file_get_contents($jsonPath), true) : ['bitcoin', 'ethereum'];
+            
+            $balances = [];
+            foreach ($assetList as $assetId) {
+                $balances[$assetId] = "0.00";
+            }
+
+            $user->wallet()->create([
+                'balances' => $balances,
+            ]);
+
             // Send welcome email
             Mail::to($user->email)->send(new WelcomeEmail($user));
 

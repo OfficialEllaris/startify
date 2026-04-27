@@ -69,11 +69,22 @@
     @stack('scripts')
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        const initLucide = () => { if (window.lucide) window.lucide.createIcons(); };
+        const initLucide = () => { 
+            if (window.lucide) {
+                window.lucide.createIcons(); 
+            }
+        };
         document.addEventListener('DOMContentLoaded', initLucide);
         document.addEventListener('livewire:navigated', initLucide);
-        Livewire.hook('morph.updated', initLucide);
-        Livewire.hook('morph.added', initLucide);
+        
+        // Handle Livewire updates
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.hook('request', ({ succeed }) => {
+                succeed(() => {
+                    setTimeout(initLucide, 0);
+                });
+            });
+        });
     </script>
 </body>
 

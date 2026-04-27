@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Wallet extends Model
 {
-    protected $fillable = ['user_id', 'balances'];
+    protected $fillable = ['user_id', 'balances', 'addresses'];
 
     protected $casts = [
         'balances' => 'array',
+        'addresses' => 'array',
     ];
 
     /**
