@@ -55,4 +55,12 @@ class User extends Authenticatable
     {
         return $this->role === UserRole::Client;
     }
+
+    /**
+     * Get the wallet associated with the user.
+     */
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Wallet::class);
+    }
 }

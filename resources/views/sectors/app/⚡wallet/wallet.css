@@ -1,1 +1,29 @@
-/* Add your CSS here */
+/* Glassmorphism Refinements */
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-2xl {
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+}
+
+/* Premium Animations */
+@keyframes soft-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.98); }
+}
+
+.animate-soft-pulse {
+    animation: soft-pulse 4s infinite ease-in-out;
+}
+
+/* Hide Scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
