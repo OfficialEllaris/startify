@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Enums\UserRole;
 use App\Models\Wallet;
+use App\Support\PlaceholderDepositAddress;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
 class UpdateWalletAssets extends Command
@@ -20,53 +22,54 @@ class UpdateWalletAssets extends Command
      *
      * @var string
      */
-    protected $description = 'Add missing assets from the JSON config to all user wallets';
+    protected $description = 'Sync balances and manager deposit addresses from database/data/assets.json for every wallet';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $jsonPath = database_path('data/assets.json');
-        
-        if (!File::exists($jsonPath)) {
+
+        if (! File::exists($jsonPath)) {
             $this->error("Assets JSON not found at: {$jsonPath}");
-            return;
+
+            return self::FAILURE;
         }
 
         $assetList = json_decode(File::get($jsonPath), true);
-        
-        if (!is_array($assetList)) {
-            $this->error("Invalid JSON format in assets.json");
-            return;
+
+        if (! is_array($assetList)) {
+            $this->error('Invalid JSON format in assets.json');
+
+            return self::FAILURE;
         }
 
-        $wallets = Wallet::all();
+        $wallets = Wallet::with('user')->get();
         $totalUpdated = 0;
 
         foreach ($wallets as $wallet) {
             $balances = $wallet->balances ?? [];
             $addresses = $wallet->addresses ?? [];
             $updated = false;
-            
-            $isAdmin = $wallet->user && $wallet->user->role === \App\Enums\UserRole::Manager;
+
+            $isManager = $wallet->user && $wallet->user->role === UserRole::Manager;
 
             foreach ($assetList as $assetId) {
-                if (!isset($balances[$assetId])) {
-                    $balances[$assetId] = "0.00";
+                if (! isset($balances[$assetId])) {
+                    $balances[$assetId] = '0.00';
                     $updated = true;
                 }
-                
-                if ($isAdmin && !isset($addresses[$assetId])) {
-                    // Generate a placeholder address ONLY for the admin
-                    $addresses[$assetId] = '0x' . bin2hex(random_bytes(20));
+
+                if ($isManager && ! isset($addresses[$assetId])) {
+                    $addresses[$assetId] = PlaceholderDepositAddress::generate($assetId);
                     $updated = true;
                 }
             }
 
             if ($updated) {
                 $wallet->balances = $balances;
-                if ($isAdmin) {
+                if ($isManager) {
                     $wallet->addresses = $addresses;
                 }
                 $wallet->save();
@@ -74,6 +77,8 @@ class UpdateWalletAssets extends Command
             }
         }
 
-        $this->info("Successfully updated {$totalUpdated} wallets with new assets.");
+        $this->info("Successfully updated {$totalUpdated} wallet(s); asset list driven by assets.json (no migration needed for new coins).");
+
+        return self::SUCCESS;
     }
 }

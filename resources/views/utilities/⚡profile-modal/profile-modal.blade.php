@@ -46,6 +46,13 @@
                     :class="activeTab === 'security' ? 'border-primary text-primary' : 'border-transparent text-base-content/40 hover:text-base-content hover:border-base-300'">
                     Security
                 </button>
+                @if(auth()->user()->isManager())
+                    <button @click="activeTab = 'wallet'" 
+                        class="h-14 px-6 text-xs font-black uppercase tracking-widest border-b-2 transition-all"
+                        :class="activeTab === 'wallet' ? 'border-primary text-primary' : 'border-transparent text-base-content/40 hover:text-base-content hover:border-base-300'">
+                        Wallet
+                    </button>
+                @endif
             </div>
 
             <!-- Body -->
@@ -135,6 +142,40 @@
                         </div>
                     </form>
                 </div>
+
+                @if(auth()->user()->isManager())
+                <!-- Wallet Section -->
+                <div x-show="activeTab === 'wallet'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
+                    <h3 class="text-sm font-black uppercase tracking-widest text-base-content/30 mb-6 flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-4 h-4"></i> Wallet Addresses
+                    </h3>
+
+                    @if (session('status') === 'wallet-updated')
+                        <div class="bg-success/10 border border-success/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
+                            <span class="text-sm font-medium text-success">Wallet addresses updated successfully.</span>
+                        </div>
+                    @endif
+
+                    <form wire:submit="updateWalletAddresses" class="space-y-4">
+                        @foreach($wallet_addresses as $assetId => $address)
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text text-[10px] font-black uppercase tracking-widest opacity-40">{{ $assetId === 'xdce-crowd-sale' ? 'XDC Network' : str_replace('-', ' ', ucwords($assetId, '-')) }}</span>
+                                </label>
+                                <input type="text" wire:model="wallet_addresses.{{ $assetId }}" class="input h-14 bg-base-200/50 border-none rounded-2xl w-full focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium" placeholder="Enter {{ $assetId === 'xdce-crowd-sale' ? 'XDC' : str_replace('-', ' ', $assetId) }} address">
+                            </div>
+                        @endforeach
+
+                        <div class="flex justify-end mt-6">
+                            <button type="submit" class="btn btn-primary h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">
+                                <span wire:loading.remove wire:target="updateWalletAddresses">Save Addresses</span>
+                                <span wire:loading wire:target="updateWalletAddresses" class="loading loading-spinner loading-sm"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
             </div>
         </div>
     </div>

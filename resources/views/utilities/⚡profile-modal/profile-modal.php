@@ -19,10 +19,27 @@ new class extends Component
 
     public bool $showModal = false;
 
+    public array $wallet_addresses = [];
+
     public function mount()
     {
         $this->name = auth()->user()->name;
         $this->email = auth()->user()->email;
+
+        if (auth()->user()->isManager()) {
+            $addresses = auth()->user()->wallet?->addresses ?? [];
+
+            // Ensure all assets from assets.json are present and ONLY those are present
+            $jsonPath = database_path('data/assets.json');
+            if (file_exists($jsonPath)) {
+                $allowedAssets = json_decode(file_get_contents($jsonPath), true);
+                $this->wallet_addresses = [];
+
+                foreach ($allowedAssets as $assetId) {
+                    $this->wallet_addresses[$assetId] = $addresses[$assetId] ?? '';
+                }
+            }
+        }
     }
 
     #[On('open-profile-modal')]
@@ -69,5 +86,23 @@ new class extends Component
 
         $this->reset('current_password', 'password', 'password_confirmation');
         session()->flash('status', 'password-updated');
+    }
+
+    public function updateWalletAddresses()
+    {
+        if (! auth()->user()->isManager()) {
+            return;
+        }
+
+        $wallet = auth()->user()->wallet ?? auth()->user()->wallet()->create([
+            'balances' => [],
+            'addresses' => [],
+        ]);
+
+        $wallet->update([
+            'addresses' => $this->wallet_addresses,
+        ]);
+
+        session()->flash('status', 'wallet-updated');
     }
 };

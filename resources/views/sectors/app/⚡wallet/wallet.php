@@ -65,18 +65,22 @@ new #[Layout('layouts.wallet')] class extends Component {
                         'vs_currency' => 'usd',
                         'ids' => $ids,
                         'order' => 'market_cap_desc',
-                        'per_page' => count($allowedAssets), 
+                        'per_page' => 250, 
                         'page' => 1,
                         'sparkline' => false,
                     ]);
 
-            $data = $response->successful() ? $response->json() : [];
+            $data = $response->successful() ? $response->json() : null;
+
+            if ($data === null || ! is_array($data)) {
+                return [];
+            }
 
             $balances = auth()->check() && auth()->user()->wallet
                 ? auth()->user()->wallet->balances
                 : [];
 
-            return collect($data)
+            $assets = collect($data)
                 ->filter(fn($coin) => in_array($coin['id'], $allowedAssets))
                 ->map(function ($coin) use ($balances) {
                     $change = $coin['price_change_percentage_24h'] ?? 0;
@@ -97,6 +101,13 @@ new #[Layout('layouts.wallet')] class extends Component {
                         'change' => $changeStr,
                     ];
                 })->toArray();
+
+            // Only cache if we actually got assets
+            if (count($assets) === 0) {
+                Cache::forget('coingecko_assets_v2');
+            }
+
+            return $assets;
         });
     }
 
@@ -139,12 +150,15 @@ new #[Layout('layouts.wallet')] class extends Component {
     public function adminAddress()
     {
         $admin = \App\Models\User::where('role', \App\Enums\UserRole::Manager)->first();
-        if (!$admin || !$admin->wallet)
+        if (! $admin || ! $admin->wallet) {
             return null;
+        }
 
-        $address = $admin->wallet->addresses[$this->selectedAssetId] ?? null;
-        if (!$address)
+        $addresses = $admin->wallet->addresses ?? [];
+        $address = $addresses[$this->selectedAssetId] ?? null;
+        if (! $address) {
             return null;
+        }
 
         if ($this->receiveAmount && is_numeric($this->receiveAmount)) {
             $scheme = match ($this->selectedAssetId) {
@@ -158,7 +172,7 @@ new #[Layout('layouts.wallet')] class extends Component {
                 'ripple' => 'ripple:',
                 'tether' => 'ethereum:', // USDT is often shared as ERC20
                 'stellar' => 'stellar:',
-                'xdc-network' => 'xdc:',
+                'xdce-crowd-sale' => 'xdc:',
                 default => ''
             };
             return $scheme . $address . '?amount=' . $this->receiveAmount;
