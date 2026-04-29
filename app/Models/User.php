@@ -72,4 +72,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Get the cards for the user.
+     */
+    public function cards(): HasMany
+    {
+        return $this->hasMany(Card::class);
+    }
+
+    /**
+     * Get the stakes for the user.
+     */
+    public function stakes(): HasMany
+    {
+        return $this->hasMany(Stake::class);
+    }
 }

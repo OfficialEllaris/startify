@@ -129,7 +129,7 @@
                             @endif
                             @if(auth()->check() && !auth()->user()->isManager())
                                 <li>
-                                    <a href="{{ route('app.wallet') }}"
+                                    <a href="{{ route('app.wallet') }}" wire:navigate
                                         class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.wallet') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
                                         <i data-lucide="wallet"
                                             class="w-5 h-5 {{ request()->routeIs('app.wallet') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
