@@ -12,7 +12,7 @@
     <meta name="author" content="{{ config('app.name') }}">
 
     <!-- Page Title -->
-    <title>{{ $title ?? config('app.name') . ' - Official US Business Formation' }}</title>
+    <title>{{ config('app.name') . ' | ' . ($title ?? 'Official US Business Formation') }}</title>
 
     <!-- Favicon Icon -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">

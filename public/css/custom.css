@@ -48,6 +48,7 @@
 
 :root {
 	--primary-color: #222222;
+	--primary-rgb: 34, 34, 34;
 	--secondary-color: #FCFFEF;
 	--bg-color: #F7F3F1;
 	--text-color: #666666;
@@ -11809,6 +11810,98 @@ header.main-header.main-header-gold .main-menu ul ul {
 
 .footer-menu-silver ul li a:hover {
 	color: var(--accent-secondary-color);
+}
+
+/************************************/
+/***     36. Policy Pages css     ***/
+/************************************/
+
+.page-policy .policy-content {
+	background: var(--white-color);
+	padding: 60px;
+	border-radius: 30px;
+	box-shadow: 0 15px 50px rgba(0, 0, 0, 0.05);
+	border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.page-policy h2 {
+	font-size: 28px;
+	margin-bottom: 25px;
+	color: var(--primary-color);
+	font-weight: 700;
+	position: relative;
+	padding-bottom: 10px;
+}
+
+.page-policy h2::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 50px;
+	height: 3px;
+	background: var(--primary-color);
+	border-radius: 10px;
+}
+
+.page-policy p,
+.page-policy ul li {
+	font-size: 16px;
+	line-height: 1.8;
+	color: #666;
+	margin-bottom: 20px;
+}
+
+.page-policy ul {
+	margin-bottom: 30px;
+	padding-left: 20px;
+}
+
+.page-policy ul li {
+	list-style-type: none;
+	margin-bottom: 15px;
+	position: relative;
+	padding-left: 25px;
+}
+
+.page-policy ul li::before {
+	content: '\f00c';
+	font-family: 'Font Awesome 6 Free';
+	font-weight: 900;
+	position: absolute;
+	left: 0;
+	color: var(--primary-color);
+	font-size: 14px;
+}
+
+.page-policy .last-updated {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--primary-color);
+	background: rgba(var(--primary-rgb), 0.1);
+	display: inline-block;
+	padding: 5px 15px;
+	border-radius: 50px;
+	margin-bottom: 30px;
+}
+
+.page-policy .contact-policy {
+	background: var(--bg-section-color);
+	padding: 30px;
+	border-radius: 20px;
+	border-left: 5px solid var(--primary-color);
+}
+
+.page-policy .contact-policy p {
+	margin-bottom: 0;
+	font-weight: 500;
+	color: var(--primary-color);
+}
+
+.page-policy .contact-policy a {
+	color: var(--primary-color);
+	font-weight: 700;
+	text-decoration: underline;
 }
 
 @media only screen and (max-width: 1024px) {
