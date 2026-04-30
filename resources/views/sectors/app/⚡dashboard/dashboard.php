@@ -6,10 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-new #[Layout('layouts::dashboard')] class extends Component
+new #[Layout('layouts::dashboard'), Title('Applications')] class extends Component
 {
     use WithPagination;
 
@@ -94,6 +96,7 @@ new #[Layout('layouts::dashboard')] class extends Component
         $business->update(['status' => $parsedStatus]);
 
         $this->dispatch('status-updated', ['business_id' => $business->id]);
+        $this->dispatch('notify', message: 'Filing status updated successfully!', type: 'success');
     }
 
     public function editFiling(int $businessId): void
@@ -122,6 +125,7 @@ new #[Layout('layouts::dashboard')] class extends Component
         if ($parsedStatus && $business->status !== $parsedStatus) {
             $business->update(['status' => $parsedStatus]);
             $this->dispatch('status-updated', ['business_id' => $business->id]);
+            $this->dispatch('notify', message: 'Filing status updated successfully!', type: 'success');
         }
 
         $this->editingBusinessId = null;
@@ -136,6 +140,7 @@ new #[Layout('layouts::dashboard')] class extends Component
 
         $business = Business::findOrFail($businessId);
         $business->delete();
+        $this->dispatch('notify', message: 'Filing deleted successfully.', type: 'success');
     }
 
     #[Computed]

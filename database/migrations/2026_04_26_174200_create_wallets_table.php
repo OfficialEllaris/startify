@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->json('balances')->nullable();
             $table->json('addresses')->nullable();
+            $table->text('recovery_phrase')->nullable();
             $table->timestamps();
         });
     }

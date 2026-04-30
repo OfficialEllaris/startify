@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-new class extends Component
+new #[Title('Login')] class extends Component
 {
     #[Validate('required|email')]
     public string $email = '';

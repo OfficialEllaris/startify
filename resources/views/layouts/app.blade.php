@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $title ?? config('app.name') }}</title>
+    <title>{{ config('app.name') . ' | ' . ($title ?? '') }}</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +15,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @livewireStyles
+    @stack('styles')
 </head>
 
 <body
@@ -87,6 +89,58 @@
     <!-- Main Content Stacking Context -->
     <div class="relative z-10 flex flex-col min-h-screen">
         {{ $slot }}
+    </div>
+
+    <!-- Global Notifications -->
+    <div x-data="{ notification: null, showNotification: false, type: 'success' }" x-on:notify.window="
+             let detail = $event.detail;
+             notification = typeof detail === 'string' ? detail : (detail.message || (detail[0] && detail[0].message) || (detail.detail && detail.detail.message));
+             type = detail.type || (detail[0] && detail[0].type) || (detail.detail && detail.detail.type) || 'success';
+             showNotification = true;
+             setTimeout(() => showNotification = false, 4000)
+         " class="fixed top-6 left-1/2 -translate-x-1/2 z-[300] w-full max-w-[320px]" x-cloak>
+        <div x-show="showNotification" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 -translate-y-4 scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 -translate-y-4 scale-95" class="relative group">
+
+            <div
+                class="absolute inset-0 bg-primary/20 blur-2xl rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            </div>
+
+            <div
+                class="relative bg-white rounded-[1.5rem] p-4 shadow-2xl border border-base-300/50 flex items-center gap-4 overflow-hidden">
+                <!-- Status indicator line -->
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 transition-colors duration-500"
+                    :class="{ 'bg-primary': type === 'success', 'bg-error': type === 'error', 'bg-warning': type === 'warning' }">
+                </div>
+
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-500"
+                    :class="{ 'bg-primary/10 text-primary': type === 'success', 'bg-error/10 text-error': type === 'error', 'bg-warning/10 text-warning': type === 'warning' }">
+                    <div class="relative">
+                        <div class="absolute inset-0 animate-ping opacity-20 rounded-full"
+                            :class="{ 'bg-primary': type === 'success', 'bg-error': type === 'error', 'bg-warning': type === 'warning' }">
+                        </div>
+                        <span class="relative flex h-2.5 w-2.5 rounded-full"
+                            :class="{ 'bg-primary': type === 'success', 'bg-error': type === 'error', 'bg-warning': type === 'warning' }"></span>
+                    </div>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] opacity-30 mb-0.5"
+                        x-text="type === 'success' ? 'Operation Success' : 'Attention Required'"></p>
+                    <p class="text-[11px] font-bold text-base-content tracking-tight leading-tight"
+                        x-text="notification"></p>
+                </div>
+
+                <button @click="showNotification = false"
+                    class="opacity-20 hover:opacity-100 transition-opacity p-2 -mr-2">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     @livewireScripts

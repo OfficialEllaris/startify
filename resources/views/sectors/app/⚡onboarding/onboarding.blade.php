@@ -1,15 +1,15 @@
 <div class="flex min-h-screen items-center justify-center px-3 py-6 sm:p-4 sm:py-12">
     <div class="w-full max-w-2xl">
         <!-- Logo Section -->
-        <div class="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-10">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-primary rounded-xl sm:rounded-2xl flex items-center justify-center text-primary-content shadow-2xl shadow-primary/30 rotate-3">
-                <i data-lucide="zap" class="w-6 h-6 sm:w-7 sm:h-7 -rotate-3"></i>
+        <a href="{{ route('web.home') }}" class="flex items-center justify-center gap-4 sm:gap-4 mb-8 sm:mb-10 group/logo hover:opacity-80 transition-opacity">
+            <div class="w-14 h-14 sm:w-14 sm:h-14 bg-primary rounded-2xl flex items-center justify-center text-primary-content shadow-2xl shadow-primary/30 rotate-3 transition-transform group-hover/logo:scale-110 group-hover/logo:rotate-6">
+                <img src="{{ asset('favicon.ico') }}" alt="{{ config('app.name') }}" class="w-8 h-8 sm:w-8 sm:h-8 -rotate-3">
             </div>
             <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tighter uppercase italic leading-none">{{ config('app.name') }}</h1>
-                <p class="text-[8px] sm:text-[9px] font-black opacity-30 uppercase tracking-[0.2em] mt-0.5">Business Formation</p>
+                <h1 class="text-3xl sm:text-3xl font-black tracking-tighter uppercase italic leading-none text-base-content">{{ config('app.name') }}</h1>
+                <p class="text-[9px] sm:text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mt-0.5">Business Formation</p>
             </div>
-        </div>
+        </a>
 
         {{-- Step Indicator --}}
         @if($step < ($isAuthenticated ? 6 : 7))
@@ -21,19 +21,19 @@
                 @foreach($steps as $i => $label)
                     @php $num = $i + 1; @endphp
                     <div class="flex items-center gap-1 sm:gap-2">
-                        <div class="flex items-center gap-1.5 sm:gap-2 {{ $step >= $num ? 'opacity-100' : 'opacity-30' }} transition-opacity duration-300">
+                        <div class="flex items-center gap-1.5 sm:gap-2 {{ $step >= $num ? 'opacity-100' : 'opacity-60' }} transition-opacity duration-300">
                             <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center text-[10px] sm:text-xs font-black transition-all duration-300
-                                {{ $step === $num ? 'bg-primary text-primary-content shadow-lg shadow-primary/30 scale-110' : ($step > $num ? 'bg-primary/20 text-primary' : 'bg-base-300/50 text-base-content/40') }}">
+                                {{ $step === $num ? 'bg-primary text-primary-content shadow-lg shadow-primary/30 scale-110' : ($step > $num ? 'bg-primary/20 text-primary' : 'bg-base-300 text-base-content/60') }}">
                                 @if($step > $num)
                                     <i data-lucide="check" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i>
                                 @else
                                     {{ $num }}
                                 @endif
                             </div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider hidden sm:inline {{ $step === $num ? 'text-base-content' : 'text-base-content/40' }}">{{ $label }}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider hidden sm:inline {{ $step === $num ? 'text-base-content' : 'text-base-content/60' }}">{{ $label }}</span>
                         </div>
                         @if(!$loop->last)
-                            <div class="w-3 sm:w-6 h-px {{ $step > $num ? 'bg-primary/30' : 'bg-base-300/50' }} transition-colors duration-300"></div>
+                            <div class="w-3 sm:w-6 h-px {{ $step > $num ? 'bg-primary/30' : 'bg-base-300' }} transition-colors duration-300"></div>
                         @endif
                     </div>
                 @endforeach
@@ -55,7 +55,7 @@
                     @elseif($step === 7) You're All Set!
                     @endif
                 </h2>
-                <p class="text-xs sm:text-sm font-medium text-base-content/40">
+                <p class="text-xs sm:text-sm font-medium text-base-content/60">
                     @if($step === 1) Select the state where your business will be officially formed.
                     @elseif($step === 2) Tell us about the entity you'd like to create.
                     @elseif($step === 3) Every business needs a registered agent for legal documents.
@@ -378,31 +378,50 @@
 
                 {{-- Navigation --}}
                 @if($step < ($isAuthenticated ? 6 : 7))
-                    <div class="flex {{ $step > 1 ? 'justify-between' : 'justify-end' }} items-center mt-6 sm:mt-10 pt-6 sm:pt-8 border-t border-base-300/30 gap-3">
-                        @if($step > 1)
-                            <button type="button" wire:click="previousStep" class="btn btn-ghost h-12 px-6 rounded-2xl font-black text-xs uppercase tracking-widest gap-2 group">
-                                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
-                                Back
-                            </button>
-                        @endif
+                    <div class="flex flex-col sm:flex-row {{ $step > 1 || $isAuthenticated ? 'sm:justify-between' : 'sm:justify-end' }} items-stretch sm:items-center mt-6 sm:mt-10 pt-6 sm:pt-8 border-t border-base-300/30 gap-3">
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            @if($step > 1)
+                                <button type="button" wire:click="previousStep" class="btn btn-ghost h-12 px-6 rounded-2xl font-black text-xs uppercase tracking-widest gap-2 group w-full sm:w-auto">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+                                    Back
+                                </button>
+                            @endif
+
+                            @if($isAuthenticated && $step === 1)
+                                <a href="{{ route('app.dashboard') }}" wire:navigate class="btn h-12 px-6 rounded-2xl font-black text-xs uppercase tracking-widest gap-2 group w-full sm:w-auto">
+                                    <i data-lucide="layout-dashboard" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
+                                    Dashboard
+                                </a>
+                            @endif
+                        </div>
 
                         @if(($isAuthenticated && $step === 5) || (!$isAuthenticated && $step === 6))
-                            <button type="submit" class="btn btn-primary h-12 {{ $step === 1 ? 'w-full sm:w-auto' : 'flex-1 sm:flex-none' }} rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/30 gap-2 group px-8">
-                                <span wire:loading.remove wire:target="submit" class="flex items-center gap-2">
+                            <button type="submit" 
+                                    wire:loading.attr="disabled"
+                                    class="btn btn-primary h-12 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/30 gap-2 group px-8 w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
+                                <span wire:loading.remove wire:target="submit, nextStep" class="flex items-center gap-2 justify-center">
                                     Submit Application
                                     <i data-lucide="check" class="w-4 h-4 group-hover:scale-110 transition-transform"></i>
                                 </span>
-                                <span wire:loading wire:target="submit" class="loading loading-spinner loading-sm"></span>
+                                <span wire:loading wire:target="submit, nextStep" class="flex items-center gap-2 justify-center">
+                                    Processing...
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                </span>
                             </button>
                         @elseif($isAuthenticated && $step === 5)
                             {{-- This shouldn't be reached due to the previous condition, but for clarity --}}
                         @else
-                            <button type="submit" class="btn btn-primary h-12 {{ $step === 1 ? 'w-full sm:w-auto' : 'flex-1 sm:flex-none' }} rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/30 gap-2 group px-8">
-                                <span wire:loading.remove wire:target="nextStep" class="flex items-center gap-2">
+                            <button type="submit" 
+                                    wire:loading.attr="disabled"
+                                    class="btn btn-primary h-12 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/30 gap-2 group px-8 w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed">
+                                <span wire:loading.remove wire:target="submit, nextStep" class="flex items-center gap-2 justify-center">
                                     Continue
                                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                                 </span>
-                                <span wire:loading wire:target="nextStep" class="loading loading-spinner loading-sm"></span>
+                                <span wire:loading wire:target="submit, nextStep" class="flex items-center gap-2 justify-center">
+                                    Loading...
+                                    <span class="loading loading-spinner loading-xs"></span>
+                                </span>
                             </button>
                         @endif
                     </div>

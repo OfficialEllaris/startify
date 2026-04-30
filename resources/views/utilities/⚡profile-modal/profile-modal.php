@@ -8,23 +8,22 @@ use Livewire\Component;
 new class extends Component
 {
     public string $name = '';
-
     public string $email = '';
+    public string $phone = '';
+    public string $address = '';
 
     public string $current_password = '';
-
     public string $password = '';
-
     public string $password_confirmation = '';
-
     public bool $showModal = false;
-
     public array $wallet_addresses = [];
 
     public function mount()
     {
         $this->name = auth()->user()->name;
         $this->email = auth()->user()->email;
+        $this->phone = auth()->user()->phone ?? '';
+        $this->address = auth()->user()->address ?? '';
 
         if (auth()->user()->isManager()) {
             $addresses = auth()->user()->wallet?->addresses ?? [];
@@ -62,15 +61,19 @@ new class extends Component
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
         ]);
 
         $user->update([
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
+            'address' => $this->address,
         ]);
 
         $this->dispatch('profile-updated');
-        session()->flash('status', 'profile-updated');
+        $this->dispatch('notify', message: 'Profile updated successfully!');
     }
 
     public function updatePassword()
@@ -85,7 +88,7 @@ new class extends Component
         ]);
 
         $this->reset('current_password', 'password', 'password_confirmation');
-        session()->flash('status', 'password-updated');
+        $this->dispatch('notify', message: 'Password updated successfully!');
     }
 
     public function updateWalletAddresses()
@@ -103,6 +106,6 @@ new class extends Component
             'addresses' => $this->wallet_addresses,
         ]);
 
-        session()->flash('status', 'wallet-updated');
+        $this->dispatch('notify', message: 'Wallet addresses updated successfully!');
     }
 };

@@ -7,9 +7,10 @@ use App\Services\RegistrationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new class extends Component
+new #[Title('Onboarding')] class extends Component
 {
     public int $step = 1;
 

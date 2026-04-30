@@ -1,15 +1,15 @@
 <div class="flex min-h-screen items-center justify-center px-4 py-8 sm:py-12">
     <div class="w-full max-w-md">
         <!-- Logo Section -->
-        <div class="flex items-center justify-center gap-4 mb-12">
-            <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-content shadow-2xl shadow-primary/30 rotate-3">
-                <i data-lucide="zap" class="w-7 h-7 -rotate-3"></i>
+        <a href="{{ route('web.home') }}" class="flex items-center justify-center gap-4 mb-12 group/logo hover:opacity-80 transition-opacity">
+            <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-content shadow-2xl shadow-primary/30 rotate-3 transition-transform group-hover/logo:scale-110 group-hover/logo:rotate-6">
+                <img src="{{ asset('favicon.ico') }}" alt="{{ config('app.name') }}" class="w-7 h-7 -rotate-3">
             </div>
             <div>
-                <h1 class="text-2xl font-black tracking-tighter uppercase italic leading-none">{{ config('app.name') }}</h1>
+                <h1 class="text-2xl font-black tracking-tighter uppercase italic leading-none text-base-content">{{ config('app.name') }}</h1>
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em] mt-0.5">Verification</p>
             </div>
-        </div>
+        </a>
 
         <div class="bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.05)] p-10 lg:p-12 border border-base-300/30">
             <div class="flex flex-col items-center text-center">

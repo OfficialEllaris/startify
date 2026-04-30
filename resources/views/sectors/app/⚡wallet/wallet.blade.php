@@ -118,25 +118,8 @@
     <!-- Main Scrollable Area -->
     <main class="flex-1 pb-30 overflow-y-auto no-scrollbar">
         <div class="max-w-md mx-auto p-6 lg:p-4 space-y-8" 
-             x-data="{ notification: null, showNotification: false }"
-             x-init="$watch('$wire.view', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); })"
-             @notify.window="notification = $event.detail.message; showNotification = true; setTimeout(() => showNotification = false, 3000)">
-
-            <!-- Toast Notification -->
-            <div x-show="showNotification" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 -translate-y-4"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 x-transition:leave="transition ease-in duration-300"
-                 x-transition:leave-start="opacity-100 translate-y-0"
-                 x-transition:leave-end="opacity-0 -translate-y-4"
-                 class="fixed top-6 left-1/2 -translate-x-1/2 z-[300] w-full max-w-[280px]"
-                 x-cloak>
-                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl flex items-center gap-3">
-                    <div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                    <p class="text-[10px] font-black text-white uppercase tracking-widest" x-text="notification"></p>
-                </div>
-            </div>
+             x-data
+             x-init="$watch('$wire.view', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); })">
 
             <!-- Navigation Header -->
             <div class="flex items-center justify-between pt-2">
@@ -314,9 +297,16 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="py-8 flex flex-col items-center justify-center text-center space-y-3 opacity-40">
-                                    <i data-lucide="history" class="w-6 h-6"></i>
-                                    <p class="text-[10px] font-bold uppercase tracking-widest">No recent history</p>
+                                <div class="py-4">
+                                    <div class="border-2 border-dashed border-white/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center text-center space-y-4 transition-all duration-500 hover:border-white/10 hover:bg-white/[0.01]">
+                                        <div class="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center border border-white/10 shadow-2xl">
+                                            <i data-lucide="history" class="w-7 h-7 text-white/10"></i>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">No Recent History</h4>
+                                            <p class="text-[8px] font-bold text-white/20 uppercase tracking-widest leading-relaxed max-w-[200px] mx-auto">Your transaction history will automatically synchronize here after your first network interaction.</p>
+                                        </div>
+                                    </div>
                                 </div>
                             @endforelse
                         </div>
@@ -1290,10 +1280,11 @@
                                            placeholder="0.00"
                                            class="bg-transparent border-none text-5xl font-black text-white p-0 w-full text-center focus:ring-0 focus:outline-none outline-none placeholder:text-white/5 tracking-tighter">
                                     <div class="flex items-center gap-2 pt-2">
-                                        <button wire:click="$set('stakeAmount', '{{ (float)str_replace(',', '', $stakeAsset['balance']) * 0.25 }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">25%</button>
-                                        <button wire:click="$set('stakeAmount', '{{ (float)str_replace(',', '', $stakeAsset['balance']) * 0.5 }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">50%</button>
-                                        <button wire:click="$set('stakeAmount', '{{ (float)str_replace(',', '', $stakeAsset['balance']) * 0.75 }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">75%</button>
+                                        <button wire:click="$set('stakeAmount', '{{ round((float)str_replace(',', '', $stakeAsset['balance']) * 0.25, 4) }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">25%</button>
+                                        <button wire:click="$set('stakeAmount', '{{ round((float)str_replace(',', '', $stakeAsset['balance']) * 0.5, 4) }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">50%</button>
+                                        <button wire:click="$set('stakeAmount', '{{ round((float)str_replace(',', '', $stakeAsset['balance']) * 0.75, 4) }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">75%</button>
                                         <button wire:click="$set('stakeAmount', '{{ (float)str_replace(',', '', $stakeAsset['balance']) }}')" class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-black text-white/40 uppercase hover:text-white hover:bg-white/10 transition-all">Max</button>
+
                                     </div>
                                 </div>
                                 @error('stakeAmount')

@@ -4,11 +4,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-new class extends Component
+new #[Title('Reset Password')] class extends Component
 {
     #[Url]
     public string $token = '';

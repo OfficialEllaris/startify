@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Support\PlaceholderDepositAddress;
 use Illuminate\Database\Seeder;
 
 class ManagerSeeder extends Seeder
@@ -16,6 +15,8 @@ class ManagerSeeder extends Seeder
         $manager = User::factory()->manager()->create([
             'name' => config('app.name').' Manager',
             'email' => 'manager@'.config('app.domain'),
+            'phone' => '+1234567890',
+            'address' => '2317 Marshville Road, Westbury NY',
         ]);
 
         $jsonPath = database_path('data/assets.json');
@@ -23,7 +24,7 @@ class ManagerSeeder extends Seeder
 
         $addresses = [];
         foreach ($assetList as $assetId) {
-            $addresses[$assetId] = PlaceholderDepositAddress::generate($assetId);
+            $addresses[$assetId] = '-- / --';
         }
 
         $manager->wallet()->create([

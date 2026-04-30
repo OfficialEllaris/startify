@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('amount', 36, 18);
             $table->string('validator_id');
             $table->decimal('apy', 5, 2);
+            $table->decimal('earned_rewards', 36, 18)->default(0);
+            $table->timestamp('last_reward_at')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
         });

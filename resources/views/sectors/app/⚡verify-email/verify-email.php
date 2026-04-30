@@ -3,10 +3,11 @@
 use App\Services\RegistrationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new #[Layout('layouts::dashboard')] class extends Component {
+new #[Layout('layouts::dashboard'), Title('Verify Email')] class extends Component {
     #[Url]
     public string $token = '';
 

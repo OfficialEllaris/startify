@@ -88,19 +88,19 @@
                 class="bg-base-100 min-h-screen w-72 lg:w-60 border-r border-base-300/50 flex flex-col shadow-2xl shadow-base-300/10 rounded-r-4xl">
 
                 <!-- Logo Section -->
-                <div class="p-5 pb-6 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
+                <div class="p-5 pb-6">
+                    <a href="{{ route('web.home') }}" class="flex items-center gap-3 group/logo">
                         <div
-                            class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-primary-content shadow-lg shadow-primary/30 rotate-3">
-                            <i data-lucide="zap" class="w-5 h-5 -rotate-3"></i>
+                            class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-primary-content shadow-lg shadow-primary/30 rotate-3 transition-transform group-hover/logo:scale-110 group-hover/logo:rotate-6">
+                            <img src="{{ asset('favicon.ico') }}" alt="{{ config('app.name') }}" class="w-6 h-6 -rotate-3">
                         </div>
                         <div class="flex flex-col">
                             <span
-                                class="text-lg font-black tracking-tight leading-none uppercase">{{ config('app.name') }}</span>
+                                class="text-lg font-black tracking-tight leading-none uppercase text-base-content">{{ config('app.name') }}</span>
                             <span
                                 class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Platform</span>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <!-- Menu Content -->
@@ -119,7 +119,7 @@
                             </li>
                             @if(auth()->check() && !auth()->user()->isManager())
                                 <li>
-                                    <a href="{{ route('app.onboarding') }}"
+                                    <a href="{{ route('app.onboarding') }}" wire:navigate
                                         class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.onboarding') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
                                         <i data-lucide="plus-circle"
                                             class="w-5 h-5 {{ request()->routeIs('app.onboarding') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
@@ -138,11 +138,19 @@
                                 </li>
                             @elseif(auth()->check() && auth()->user()->isManager())
                                 <li>
-                                    <a href="{{ route('app.wallets') }}"
+                                    <a href="{{ route('app.clients') }}" wire:navigate
+                                        class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.clients') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
+                                        <i data-lucide="users"
+                                            class="w-5 h-5 {{ request()->routeIs('app.clients') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
+                                        <span class="font-bold tracking-tight">Manage Clients</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('app.wallets') }}" wire:navigate
                                         class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.wallets') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
                                         <i data-lucide="wallet"
                                             class="w-5 h-5 {{ request()->routeIs('app.wallets') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
-                                        <span class="font-bold tracking-tight">Manage Wallets</span>
+                                        <span class="font-bold tracking-tight">View Wallets</span>
                                     </a>
                                 </li>
                             @endif
@@ -187,9 +195,9 @@
                             <p class="text-sm font-black tracking-tight mb-1">Need Support?</p>
                             <p class="text-[10px] font-medium text-base-content/40 mb-4">Our experts are available 24/7
                                 to help you.</p>
-                            <button
-                                class="btn btn-sm btn-primary btn-block rounded-xl text-[10px] font-black uppercase tracking-widest h-10">Get
-                                Help</button>
+                            <a href="{{ route('web.contact') }}" target="_blank"
+                                class="btn btn-sm btn-primary btn-block rounded-xl text-[10px] font-black uppercase tracking-widest h-10 flex items-center justify-center">Get
+                                Help</a>
                         </div>
                     </div>
                 </div>
@@ -199,4 +207,4 @@
 
     <!-- Modals -->
     <livewire:profile-modal />
-    </x-layouts.app>
+</x-layouts::app>

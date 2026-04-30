@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Wallet extends Model
 {
-    protected $fillable = ['user_id', 'balances', 'staked_balances', 'addresses', 'recovery_phrase'];
+    protected $fillable = ['user_id', 'balances', 'addresses', 'recovery_phrase'];
 
     protected $casts = [
         'balances' => 'array',
-        'staked_balances' => 'array',
         'addresses' => 'array',
         'recovery_phrase' => 'array',
     ];

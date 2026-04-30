@@ -53,4 +53,9 @@ body {
     * {
         scrollbar-width: none;
     }
+
+    button,
+    [role="button"] {
+        cursor: pointer;
+    }
 }

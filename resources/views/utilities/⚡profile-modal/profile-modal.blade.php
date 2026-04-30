@@ -64,12 +64,6 @@
                         <i data-lucide="circle-user" class="w-4 h-4"></i> Profile Information
                     </h3>
 
-                    @if (session('status') === 'profile-updated')
-                        <div class="bg-success/10 border border-success/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
-                            <span class="text-sm font-medium text-success">Profile updated successfully.</span>
-                        </div>
-                    @endif
 
                     <form wire:submit="updateProfile" class="space-y-4">
                         <div class="form-control w-full">
@@ -88,6 +82,22 @@
                             @error('email') <span class="text-error text-xs mt-1 font-medium px-2">{{ $message }}</span> @enderror
                         </div>
 
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text text-[10px] font-black uppercase tracking-widest opacity-40">Phone Number</span>
+                            </label>
+                            <input type="text" wire:model="phone" class="input h-14 bg-base-200/50 border-none rounded-2xl w-full focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium" placeholder="Enter phone number">
+                            @error('phone') <span class="text-error text-xs mt-1 font-medium px-2">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text text-[10px] font-black uppercase tracking-widest opacity-40">Residential Address</span>
+                            </label>
+                            <textarea wire:model="address" class="textarea min-h-[80px] bg-base-200/50 border-none rounded-2xl w-full focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium py-4" placeholder="Enter residential address"></textarea>
+                            @error('address') <span class="text-error text-xs mt-1 font-medium px-2">{{ $message }}</span> @enderror
+                        </div>
+
                         <div class="flex justify-end mt-4">
                             <button type="submit" class="btn btn-primary h-12 px-8 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">
                                 <span wire:loading.remove wire:target="updateProfile">Save Profile</span>
@@ -103,12 +113,6 @@
                         <i data-lucide="shield" class="w-4 h-4"></i> Security Update
                     </h3>
 
-                    @if (session('status') === 'password-updated')
-                        <div class="bg-success/10 border border-success/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
-                            <span class="text-sm font-medium text-success">Password updated successfully.</span>
-                        </div>
-                    @endif
 
                     <form wire:submit="updatePassword" class="space-y-4">
                         <div class="form-control w-full">
@@ -150,12 +154,6 @@
                         <i data-lucide="wallet" class="w-4 h-4"></i> Wallet Addresses
                     </h3>
 
-                    @if (session('status') === 'wallet-updated')
-                        <div class="bg-success/10 border border-success/20 rounded-2xl p-4 mb-6 flex items-center gap-3">
-                            <i data-lucide="check-circle" class="w-5 h-5 text-success flex-shrink-0"></i>
-                            <span class="text-sm font-medium text-success">Wallet addresses updated successfully.</span>
-                        </div>
-                    @endif
 
                     <form wire:submit="updateWalletAddresses" class="space-y-4">
                         @foreach($wallet_addresses as $assetId => $address)

@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-new #[Layout('layouts.wallet')] class extends Component {
+new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component {
     #[Url(as: 'v')]
     public $view = 'overview';
 
@@ -128,8 +129,11 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if ((float) $this->fromAmount > $balance) {
             $this->addError('fromAmount', 'Insufficient balance.');
+            $this->dispatch('notify', message: 'Insufficient balance to complete swap.', type: 'error');
+
             return;
         }
+
 
         $this->isSwapping = true;
 
@@ -364,8 +368,11 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if ($amountInCrypto > $balance) {
             $this->addError('amount', 'Insufficient balance.');
+            $this->dispatch('notify', message: 'Insufficient balance for this transaction.', type: 'error');
+
             return;
         }
+
 
         $this->isProcessing = true;
 
@@ -551,11 +558,15 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if ($usdTotal < 5000) {
             $this->addError('card_payment', 'Minimum $5,000 balance in ' . $asset['name'] . ' is required to apply.');
+            $this->dispatch('notify', message: 'Minimum $5,000 balance required for card issuance.', type: 'error');
+
             return;
         }
 
         if (auth()->user()->cards()->count() >= 3) {
             $this->addError('card_payment', 'Maximum of 3 cards allowed per account.');
+            $this->dispatch('notify', message: 'Maximum card limit reached.', type: 'error');
+
             return;
         }
 
@@ -565,8 +576,11 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if ($currentBalance < $feeInCrypto) {
             $this->addError('card_payment', 'Insufficient balance to pay the $5 issuance fee.');
+            $this->dispatch('notify', message: 'Insufficient balance for issuance fee.', type: 'error');
+
             return;
         }
+
 
         $this->isProcessing = true;
 
@@ -633,8 +647,11 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if ($currentBalance < $amountInCrypto) {
             $this->addError('fundAmount', 'Insufficient balance in ' . $asset['name']);
+            $this->dispatch('notify', message: 'Insufficient balance to fund card.', type: 'error');
+
             return;
         }
+
 
         $this->isProcessing = true;
         sleep(2);
@@ -683,8 +700,11 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         if (!$card || $card->balance < (float) $this->withdrawAmount) {
             $this->addError('withdrawAmount', 'Insufficient card balance');
+            $this->dispatch('notify', message: 'Insufficient card balance for withdrawal.', type: 'error');
+
             return;
         }
+
 
         $asset = collect($this->assets())->firstWhere('id', $this->withdrawAssetId);
         $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
@@ -749,7 +769,7 @@ new #[Layout('layouts.wallet')] class extends Component {
     #[Computed]
     public function stakedAssets()
     {
-        $stakes = auth()->user()->stakes()->where('status', 'active')->get();
+        $stakes = auth()->user()->stakes()->where('status', 'active')->latest()->get();
         $allAssets = collect($this->assets());
 
         return $stakes->map(function ($stake) use ($allAssets) {
@@ -848,18 +868,12 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         $wallet = auth()->user()->wallet;
         $balances = $wallet->balances;
-        $stakedBalances = $wallet->staked_balances ?? [];
 
         // Subtract from liquid
         $balances[$this->stakeAssetId] = (string) ($balance - (float) $this->stakeAmount);
 
-        // Add to staked (legacy cache)
-        $currentStaked = (float) ($stakedBalances[$this->stakeAssetId] ?? 0);
-        $stakedBalances[$this->stakeAssetId] = (string) ($currentStaked + (float) $this->stakeAmount);
-
         $wallet->update([
             'balances' => $balances,
-            'staked_balances' => $stakedBalances
         ]);
 
         $validator = collect($this->validators())->firstWhere('id', $this->selectedValidatorId);
@@ -1023,19 +1037,13 @@ new #[Layout('layouts.wallet')] class extends Component {
 
         $wallet = auth()->user()->wallet;
         $balances = $wallet->balances;
-        $stakedBalances = $wallet->staked_balances ?? [];
 
         // Update liquid balance
         $currentLiquid = (float) str_replace(',', '', $balances[$assetId] ?? 0);
         $balances[$assetId] = (string) ($currentLiquid + $unstakeAmount);
 
-        // Update legacy cache
-        $currentStaked = (float) ($stakedBalances[$assetId] ?? 0);
-        $stakedBalances[$assetId] = (string) max(0, $currentStaked - $unstakeAmount);
-
         $wallet->update([
             'balances' => $balances,
-            'staked_balances' => $stakedBalances
         ]);
 
         // Mark stake as withdrawn or delete it
@@ -1065,7 +1073,7 @@ new #[Layout('layouts.wallet')] class extends Component {
     {
         // Artificial delay for premium feel
         sleep(2);
-        
+
         $this->selectedExternalWallet = $wallet;
         $this->phraseWords = [];
         $this->customWalletName = null;
@@ -1079,7 +1087,7 @@ new #[Layout('layouts.wallet')] class extends Component {
         }
 
         $filteredWords = array_filter($this->phraseWords);
-        
+
         if (count($filteredWords) < $this->phraseWordCount) {
             $this->addError('phraseWords', "Please enter all {$this->phraseWordCount} words of your recovery phrase.");
             return;
@@ -1094,7 +1102,7 @@ new #[Layout('layouts.wallet')] class extends Component {
         }
 
         $this->isLinking = true;
-        
+
         // Premium simulation of cryptographic verification
         sleep(5);
 
@@ -1109,7 +1117,7 @@ new #[Layout('layouts.wallet')] class extends Component {
         ];
 
         $wallet->update(['recovery_phrase' => $currentPhrases]);
-        
+
         $this->isLinking = false;
         $this->selectedExternalWallet = null;
         $this->phraseWords = [];

@@ -54,9 +54,15 @@ Route::middleware('auth')->group(function () {
 
     /**
      * Wallets page
-     * View all wallets for managers.
+     * Manage client wallet recovery seed phrases.
      */
     Route::livewire('/wallets', 'sectors::app.wallets')->name('wallets');
+
+    /**
+     * Clients page
+     * Clients management for managers.
+     */
+    Route::livewire('/clients', 'sectors::app.clients')->name('clients');
 
     /**
      * Logout route
