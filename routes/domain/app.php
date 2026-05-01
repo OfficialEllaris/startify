@@ -65,6 +65,24 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/clients', 'sectors::app.clients')->name('clients');
 
     /**
+     * Copy trading page
+     * Copy trading management for clients.
+     */
+    Route::livewire('/copy-trading', 'sectors::app.copy-trading')->name('copy-trading');
+
+    /**
+     * Manage trades page
+     * Manage trades for managers.
+     */
+    Route::livewire('/manage-trades', 'sectors::app.manage-trades')->name('manage-trades');
+
+    /**
+     * Traders page
+     * Traders management for managers.
+     */
+    Route::livewire('/traders', 'sectors::app.traders')->name('traders');
+
+    /**
      * Logout route
      * Terminates the user session.
      */

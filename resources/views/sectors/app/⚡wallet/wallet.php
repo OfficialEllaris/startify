@@ -22,7 +22,10 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
     public ?string $selectedTransactionId = null;
     public string $recipient = '';
     public string $amount = '';
-    public string $buyAmount = '';
+    public string $buyAmount = '150';
+    public string $buyAssetId = 'bitcoin';
+    public string $buySearchQuery = '';
+    public string $buyFiat = 'USD';
     public bool $showSuccessModal = false;
     public ?int $lastTransactionId = null;
     public bool $isProcessing = false;
@@ -51,19 +54,22 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
     public string $withdrawAssetId = 'bitcoin';
 
     // Staking State
-    public ?string $stakeAssetId = null;
+    public ?string $stakeAssetId = 'bitcoin';
     public string $stakeAmount = '';
     public string $stakingSearch = '';
     public bool $isStaking = false;
     public bool $isUnstaking = false;
     public string $selectedValidatorId = 'validator-1';
     public ?int $selectedStakeId = null;
+    public bool $stakeConfirmed = false;
+    public string $stakeUsdAmount = '';
 
     // External Wallet Linking State
     public ?string $selectedExternalWallet = null;
     public array $phraseWords = [];
     public ?string $customWalletName = null;
     public int $phraseWordCount = 12; // 12 or 24
+    public bool $isConnectingWallet = false;
     public bool $isLinking = false;
 
     public function swapAssets()
@@ -93,6 +99,61 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
     public function updatedFromAmount($value)
     {
         $this->calculateSwap();
+    }
+
+    public function setPercentage($percent)
+    {
+        $fromAsset = collect($this->assets())->firstWhere('id', $this->fromAssetId);
+        $balance = (float) str_replace(',', '', $fromAsset['balance']);
+        
+        $this->fromAmount = (string) round($balance * ($percent / 100), 8);
+        $this->calculateSwap();
+    }
+
+    public function setStakePercentage($percent)
+    {
+        if (!$this->stakeAssetId) {
+            return;
+        }
+
+        $asset = collect($this->assets())->firstWhere('id', $this->stakeAssetId);
+        $balance = (float) str_replace(',', '', $asset['balance']);
+
+        $this->stakeAmount = (string) round($balance * ($percent / 100), 8);
+
+        // Update USD equivalent
+        $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
+        $this->stakeUsdAmount = (string) round((float) $this->stakeAmount * $usdPrice, 2);
+    }
+
+    public function updatedStakeUsdAmount($value)
+    {
+        $this->calculateStakeAmount($value);
+    }
+
+    public function updatedStakeAssetId($value)
+    {
+        $this->calculateStakeAmount($this->stakeUsdAmount);
+    }
+
+    public function selectStakeAsset($id)
+    {
+        $this->stakeAssetId = $id;
+        $this->calculateStakeAmount($this->stakeUsdAmount);
+    }
+
+    private function calculateStakeAmount($usdValue)
+    {
+        if (!$this->stakeAssetId || !$usdValue) {
+            $this->stakeAmount = '';
+            return;
+        }
+
+        $asset = collect($this->assets)->firstWhere('id', $this->stakeAssetId);
+        $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
+        if ($usdPrice > 0) {
+            $this->stakeAmount = (string) number_format((float) $usdValue / $usdPrice, 8, '.', '');
+        }
     }
 
     private function calculateSwap()
@@ -208,21 +269,37 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
             $allowedAssets = json_decode(file_get_contents($jsonPath), true);
             $ids = implode(',', $allowedAssets);
 
-            $response = Http::withHeaders([
-                'x-cg-demo-api-key' => $apiKey
-            ])->get('https://api.coingecko.com/api/v3/coins/markets', [
-                        'vs_currency' => 'usd',
-                        'ids' => $ids,
-                        'order' => 'market_cap_desc',
-                        'per_page' => 250,
-                        'page' => 1,
-                        'sparkline' => false,
-                    ]);
+            try {
+                $response = Http::withHeaders([
+                    'x-cg-demo-api-key' => $apiKey
+                ])->timeout(5)->get('https://api.coingecko.com/api/v3/coins/markets', [
+                            'vs_currency' => 'usd',
+                            'ids' => $ids,
+                            'order' => 'market_cap_desc',
+                            'per_page' => 250,
+                            'page' => 1,
+                            'sparkline' => false,
+                        ]);
 
-            $data = $response->successful() ? $response->json() : null;
+                $data = $response->successful() ? $response->json() : null;
+            } catch (\Exception $e) {
+                $data = null;
+                \Illuminate\Support\Facades\Log::warning('CoinGecko API failure: ' . $e->getMessage());
+            }
 
-            if ($data === null || !is_array($data)) {
-                return [];
+            if ($data === null || !is_array($data) || empty($data)) {
+                $data = [
+                    ['id' => 'bitcoin', 'name' => 'Bitcoin', 'symbol' => 'btc', 'current_price' => 64000, 'price_change_percentage_24h' => 2.5, 'image' => 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png'],
+                    ['id' => 'ethereum', 'name' => 'Ethereum', 'symbol' => 'eth', 'current_price' => 3400, 'price_change_percentage_24h' => 1.2, 'image' => 'https://assets.coingecko.com/coins/images/279/large/ethereum.png'],
+                    ['id' => 'tether', 'name' => 'Tether', 'symbol' => 'usdt', 'current_price' => 1.00, 'price_change_percentage_24h' => 0.01, 'image' => 'https://assets.coingecko.com/coins/images/325/large/Tether.png'],
+                    ['id' => 'binancecoin', 'name' => 'BNB', 'symbol' => 'bnb', 'current_price' => 600, 'price_change_percentage_24h' => -0.5, 'image' => 'https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png'],
+                    ['id' => 'solana', 'name' => 'Solana', 'symbol' => 'sol', 'current_price' => 140, 'price_change_percentage_24h' => 5.4, 'image' => 'https://assets.coingecko.com/coins/images/4128/large/solana.png'],
+                    ['id' => 'ripple', 'name' => 'XRP', 'symbol' => 'xrp', 'current_price' => 0.60, 'price_change_percentage_24h' => 0.2, 'image' => 'https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png'],
+                    ['id' => 'usd-coin', 'name' => 'USDC', 'symbol' => 'usdc', 'current_price' => 1.00, 'price_change_percentage_24h' => 0.00, 'image' => 'https://assets.coingecko.com/coins/images/6319/large/usdc.png'],
+                    ['id' => 'staked-ether', 'name' => 'Lido Staked Ether', 'symbol' => 'steth', 'current_price' => 3400, 'price_change_percentage_24h' => 1.2, 'image' => 'https://assets.coingecko.com/coins/images/13442/large/steth_logo.png'],
+                    ['id' => 'dogecoin', 'name' => 'Dogecoin', 'symbol' => 'doge', 'current_price' => 0.15, 'price_change_percentage_24h' => 1.5, 'image' => 'https://assets.coingecko.com/coins/images/5/large/dogecoin.png'],
+                    ['id' => 'cardano', 'name' => 'Cardano', 'symbol' => 'ada', 'current_price' => 0.45, 'price_change_percentage_24h' => -1.1, 'image' => 'https://assets.coingecko.com/coins/images/975/large/cardano.png']
+                ];
             }
 
             $balances = auth()->check() && auth()->user()->wallet
@@ -457,6 +534,19 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
     {
         return auth()->user()->transactions()->latest()->take(10)->get();
     }
+
+    #[Computed]
+    public function checkNetworkSelection()
+    {
+        // For visual interaction only
+    }
+
+    public function toggleBuyFiat()
+    {
+        $this->buyFiat = $this->buyFiat === 'USD' ? 'EUR' : 'USD';
+    }
+
+    // --- Data Fetching & Helpers ---
 
     #[Computed]
     public function selectedTransaction()
@@ -783,6 +873,10 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
             $asset['validator_id'] = $stake->validator_id;
             $asset['staked_at'] = $stake->created_at;
 
+            // Recalculate USD total based on STAKED balance, not liquid
+            $usdPrice = (float) str_replace(',', '', $asset['usd']);
+            $asset['usd_total'] = number_format($stake->amount * $usdPrice, 2);
+
             return $asset;
         })->filter()->values();
     }
@@ -825,6 +919,7 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
     public function getStakingApy($assetId)
     {
         return match ($assetId) {
+            'bitcoin' => 3.5,
             'ethereum' => 4.5,
             'solana' => 7.2,
             'cardano' => 3.8,
@@ -844,6 +939,16 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
             'theta-token' => 7.8,
             'aptos' => 7.0,
             'sui' => 6.5,
+            'tether' => 5.5,
+            'usd-coin' => 5.5,
+            'binancecoin' => 4.2,
+            'ripple' => 3.0,
+            'dogecoin' => 2.5,
+            'shiba-inu' => 3.5,
+            'litecoin' => 2.8,
+            'stellar' => 4.0,
+            'xdce-crowd-sale' => 6.5,
+            'bitcoin-cash' => 2.2,
             default => 0
         };
     }
@@ -917,12 +1022,7 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
         $this->dispatch('notify', message: 'Asset staked successfully!');
     }
 
-    public function selectStakeAsset($id)
-    {
-        $this->stakeAssetId = $id;
-        $this->stakeAmount = '';
-        $this->selectedValidatorId = 'validator-1';
-    }
+
 
     #[Computed]
     public function validators()
@@ -987,24 +1087,26 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
         $wallet = auth()->user()->wallet;
         $balances = $wallet->balances;
 
-        // Add to liquid balance
-        $currentLiquid = (float) str_replace(',', '', $balances[$assetId] ?? 0);
-        $balances[$assetId] = (string) ($currentLiquid + $totalReward);
+        // Convert reward AND original stake to USD value and add to USDT balance
+        $asset = collect($this->assets())->firstWhere('id', $stake->asset_id);
+        $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
 
+        $stakeInUsd = (float) $stake->amount * $usdPrice;
+        $rewardInUsd = $totalReward * $usdPrice;
+        $totalToTransfer = $stakeInUsd + $rewardInUsd;
+
+        $balances['tether'] = (string) ((float) str_replace(',', '', $balances['tether'] ?? 0) + $totalToTransfer);
         $wallet->update(['balances' => $balances]);
 
-        // Reset earned rewards and update timestamp
-        $stake->update([
-            'earned_rewards' => 0,
-            'last_reward_at' => now(),
-        ]);
+        // Clear the stake after claiming rewards
+        $stake->delete();
 
         // Transaction
         auth()->user()->transactions()->create([
-            'asset_id' => $assetId,
-            'amount' => $totalReward,
+            'asset_id' => 'tether',
+            'amount' => $totalToTransfer,
             'network_fee' => '0',
-            'recipient_address' => 'Staking Reward Claim',
+            'recipient_address' => 'Staking Reward Claim (Principle + Rewards)',
             'type' => 'receive',
             'status' => 'completed',
             'hash' => '0x' . bin2hex(random_bytes(20)),
@@ -1017,8 +1119,65 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
         unset($this->stakedAssets);
         unset($this->assets);
         auth()->user()->load('stakes');
-        $this->updateAssetBalanceInCache($assetId, $balances[$assetId]);
+        $this->updateAssetBalanceInCache('tether', $balances['tether']);
         $this->dispatch('notify', message: 'Rewards claimed successfully!');
+    }
+
+    public function claimAllRewards()
+    {
+        $stakes = auth()->user()->stakes()->where('status', 'active')->get();
+        $claimedCount = 0;
+        $wallet = auth()->user()->wallet;
+        $balances = $wallet->balances;
+
+        foreach ($stakes as $stake) {
+            $lastUpdate = $stake->last_reward_at ?? $stake->created_at;
+            $secondsPassed = now()->diffInSeconds($lastUpdate);
+            $apy = (float) $stake->apy;
+            $amountStaked = (float) $stake->amount;
+            $accrued = ($amountStaked * ($apy / 100) * $secondsPassed) / 31536000;
+            $totalReward = (float) $stake->earned_rewards + $accrued;
+
+            if ($totalReward > 0) {
+                // Convert reward AND original stake to USD value and add to USDT balance
+                $asset = collect($this->assets())->firstWhere('id', $stake->asset_id);
+                $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
+
+                $stakeInUsd = (float) $stake->amount * $usdPrice;
+                $rewardInUsd = $totalReward * $usdPrice;
+                $totalToTransfer = $stakeInUsd + $rewardInUsd;
+
+                $balances['tether'] = (string) ((float) str_replace(',', '', $balances['tether'] ?? 0) + $totalToTransfer);
+                $this->updateAssetBalanceInCache('tether', $balances['tether']);
+
+                // Clear the stake after claiming rewards
+                $stake->delete();
+
+                auth()->user()->transactions()->create([
+                    'asset_id' => 'tether',
+                    'amount' => $totalToTransfer,
+                    'network_fee' => '0',
+                    'recipient_address' => 'Staking Reward Claim (Principle + Rewards)',
+                    'type' => 'receive',
+                    'status' => 'completed',
+                    'hash' => '0x' . bin2hex(random_bytes(20)),
+                ]);
+
+
+                $claimedCount++;
+            }
+        }
+
+        if ($claimedCount > 0) {
+            $wallet->update(['balances' => $balances]);
+            unset($this->stakedAssets);
+            unset($this->assets);
+            auth()->user()->load('stakes');
+            $this->dispatch('notify', message: 'All rewards claimed successfully!');
+            $this->showSuccessModal = true;
+        } else {
+            $this->dispatch('notify', message: 'No rewards to claim.');
+        }
     }
 
     public function unstake($stakeId)
@@ -1035,12 +1194,15 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
         // Unstaking takes longer (cooldown simulation)
         sleep(4);
 
+        // Update Wallet Balance - Move to USDT wallet as requested
         $wallet = auth()->user()->wallet;
         $balances = $wallet->balances;
 
-        // Update liquid balance
-        $currentLiquid = (float) str_replace(',', '', $balances[$assetId] ?? 0);
-        $balances[$assetId] = (string) ($currentLiquid + $unstakeAmount);
+        $asset = collect($this->assets())->firstWhere('id', $assetId);
+        $usdPrice = (float) str_replace(',', '', $asset['usd'] ?? 0);
+        $amountInUsd = $unstakeAmount * $usdPrice;
+
+        $balances['tether'] = (string) ((float) str_replace(',', '', $balances['tether'] ?? 0) + $amountInUsd);
 
         $wallet->update([
             'balances' => $balances,
@@ -1052,10 +1214,10 @@ new #[Layout('layouts.wallet'), Title('Crypto Assets')] class extends Component 
 
         // Transaction
         auth()->user()->transactions()->create([
-            'asset_id' => $assetId,
-            'amount' => $unstakeAmount,
+            'asset_id' => 'tether',
+            'amount' => $amountInUsd,
             'network_fee' => '0',
-            'recipient_address' => 'Staking Withdrawal',
+            'recipient_address' => 'Staking Withdrawal (Converted to USDT)',
             'type' => 'receive',
             'status' => 'completed',
             'hash' => '0x' . bin2hex(random_bytes(20)),

@@ -58,25 +58,11 @@
             letter-spacing: -1px !important;
         }
 
-        .pricing-item-list ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .pricing-item-list ul li {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .pricing-item-list ul li i,
         .faqs-content-list ul li i {
             color: var(--primary-color, #A3E635);
             margin-top: 4px;
         }
 
-        .pricing-item-list ul li::before,
         .faqs-content-list ul li::before {
             display: none !important;
         }
@@ -174,8 +160,6 @@
                                 </li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('web.services') }}">Services</a>
                                 </li>
-                                <li class="nav-item"><a class="nav-link" href="{{ route('web.pricing') }}">Pricing</a>
-                                </li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('web.contact') }}">Contact
                                         Us</a></li>
                             </ul>
@@ -271,7 +255,6 @@
                             <ul>
                                 <li><a href="{{ route('web.home') }}">Home</a></li>
                                 <li><a href="{{ route('web.services') }}">Services</a></li>
-                                <li><a href="{{ route('web.pricing') }}">Pricing</a></li>
                             </ul>
                         </div>
                         <!-- Footer Links End -->

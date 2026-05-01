@@ -10,7 +10,8 @@
                         <div class="section-title">
                             <span class="section-sub-title wow fadeInUp">Official Entity Formation.</span>
                             <h1 class="text-anime-style-3" data-cursor="-opaque">Launch your US business with
-                                <span>{{ config('app.name') }}</span></h1>
+                                <span>{{ config('app.name') }}</span>
+                            </h1>
                             <p class="wow fadeInUp" data-wow-delay="0.2s">Fast, reliable LLC registration and entity
                                 formation. We handle the paperwork so you can focus on building your empire.</p>
                         </div>
@@ -215,7 +216,8 @@
                             <span class="section-sub-title wow fadeInUp">About Us</span>
                             <h2 class="text-anime-style-3" data-cursor="-opaque">Official LLC registration made simple
                             </h2>
-                            <p class="wow fadeInUp" data-wow-delay="0.2s">{{ config('app.name') }} simplifies the complex process of
+                            <p class="wow fadeInUp" data-wow-delay="0.2s">{{ config('app.name') }} simplifies the
+                                complex process of
                                 starting a business. We handle the paperwork so you can focus on building your empire.
                             </p>
                         </div>
@@ -253,7 +255,8 @@
                         <div class="about-us-body wow fadeInUp" data-wow-delay="0.6s">
                             <!-- About Us Body Item Start -->
                             <div class="about-us-body-item">
-                                <h3>“Launch your US business with confidence. {{ config('app.name') }} provides the most reliable path
+                                <h3>“Launch your US business with confidence. {{ config('app.name') }} provides the most
+                                    reliable path
                                     for founders to go from idea to entity.”</h3>
                             </div>
                             <!-- About Us Body Item End -->
@@ -757,164 +760,6 @@
     </div>
     <!-- How It Work Section End -->
 
-    <!-- Our Pricing Section Start -->
-    <div class="our-pricing">
-        <div class="container">
-            <div class="row section-row">
-                <div class="col-lg-12">
-                    <!-- Section Title Start -->
-                    <div class="section-title section-title-center">
-                        <span class="section-sub-title wow fadeInUp">Our Pricing Plans</span>
-                        <h2 class="text-anime-style-3" data-cursor="-opaque">Choose the formation plan that fits</h2>
-                        <p class="wow fadeInUp" data-wow-delay="0.2s">Get transparent, value-driven pricing with
-                            formation plans designed to support your business launch and growth every step of the way.
-                        </p>
-                    </div>
-                    <!-- Section Title End -->
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-xl-4 col-md-6">
-                    <!-- Pricing Item Start -->
-                    <div class="pricing-item wow fadeInUp">
-                        <!-- Pricing Item Header Start -->
-                        <div class="pricing-item-content">
-                            <h2>Starter Formation</h2>
-                            <p>Perfect for new founders.</p>
-                        </div>
-                        <!-- Pricing Item Header End -->
-
-                        <!-- Pricing Item Body Start -->
-                        <div class="pricing-item-body">
-                            <!-- Pricing Item Price Start -->
-                            <div class="pricing-item-price">
-                                <h2>$199.00</h2>
-                                <p>/ One-time</p>
-                            </div>
-                            <!-- Pricing Item Price End -->
-
-                            <!-- Pricing Item Button Start -->
-                            <div class="pricing-item-btn">
-                                <a href="{{ route('app.onboarding') }}" class="btn-default">Get Started</a>
-                            </div>
-                            <!-- Pricing Item Button End -->
-                        </div>
-                        <!-- Pricing Item Body End -->
-
-                        <!-- Pricing Item List Start -->
-                        <div class="pricing-item-list">
-                            <h3>What's included:</h3>
-                            <ul>
-                                <li><i class="fa-solid fa-check"></i> Official State Filing</li>
-                                <li><i class="fa-solid fa-check"></i> EIN Acquisition</li>
-                                <li><i class="fa-solid fa-check"></i> Operating Agreement Template</li>
-                            </ul>
-                        </div>
-                        <!-- Pricing Item List End -->
-                    </div>
-                    <!-- Pricing Item End -->
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <!-- Pricing Item Start -->
-                    <div class="pricing-item wow fadeInUp" data-wow-delay="0.2s">
-                        <!-- Pricing Item Header Start -->
-                        <div class="pricing-item-content">
-                            <h2>Business Growth</h2>
-                            <p>For entrepreneurs ready to scale.</p>
-                        </div>
-                        <!-- Pricing Item Header End -->
-
-                        <!-- Pricing Item Body Start -->
-                        <div class="pricing-item-body">
-                            <!-- Pricing Item Price Start -->
-                            <div class="pricing-item-price">
-                                <h2>$499.00</h2>
-                                <p>/ Yearly</p>
-                            </div>
-                            <!-- Pricing Item Price End -->
-
-                            <!-- Pricing Item Button Start -->
-                            <div class="pricing-item-btn">
-                                <a href="{{ route('app.onboarding') }}" class="btn-default">Get Started</a>
-                            </div>
-                            <!-- Pricing Item Button End -->
-                        </div>
-                        <!-- Pricing Item Body End -->
-
-                        <!-- Pricing Item List Start -->
-                        <div class="pricing-item-list">
-                            <h3>What's included:</h3>
-                            <ul>
-                                <li><i class="fa-solid fa-check"></i> Everything in Starter</li>
-                                <li><i class="fa-solid fa-check"></i> Registered Agent Service</li>
-                                <li><i class="fa-solid fa-check"></i> Annual Compliance Filing</li>
-                            </ul>
-                        </div>
-                        <!-- Pricing Item List End -->
-                    </div>
-                    <!-- Pricing Item End -->
-                </div>
-
-                <div class="col-xl-4 col-md-6">
-                    <!-- Pricing Item Start -->
-                    <div class="pricing-item wow fadeInUp" data-wow-delay="0.4s">
-                        <!-- Pricing Item Header Start -->
-                        <div class="pricing-item-content">
-                            <h2>Global Enterprise</h2>
-                            <p>The ultimate formation experience.</p>
-                        </div>
-                        <!-- Pricing Item Header End -->
-
-                        <!-- Pricing Item Body Start -->
-                        <div class="pricing-item-body">
-                            <!-- Pricing Item Price Start -->
-                            <div class="pricing-item-price">
-                                <h2>$999.00</h2>
-                                <p>/ Yearly</p>
-                            </div>
-                            <!-- Pricing Item Price End -->
-
-                            <!-- Pricing Item Button Start -->
-                            <div class="pricing-item-btn">
-                                <a href="{{ route('app.onboarding') }}" class="btn-default">Get Started</a>
-                            </div>
-                            <!-- Pricing Item Button End -->
-                        </div>
-                        <!-- Pricing Item Body End -->
-
-                        <!-- Pricing Item List Start -->
-                        <div class="pricing-item-list">
-                            <h3>What's included:</h3>
-                            <ul>
-                                <li><i class="fa-solid fa-check"></i> Everything in Growth</li>
-                                <li><i class="fa-solid fa-check"></i> Multi-State Registration</li>
-                                <li><i class="fa-solid fa-check"></i> Bookkeeping Setup</li>
-                            </ul>
-                        </div>
-                        <!-- Pricing Item List End -->
-                    </div>
-                    <!-- Pricing Item End -->
-                </div>
-
-                <div class="col-lg-12">
-                    <!-- Pricing Benifit List Start -->
-                    <div class="pricing-benefit-list wow fadeInUp" data-wow-delay="0.6s">
-                        <ul>
-                            <li><img src="{{ asset('images/icon-pricing-benefit-1.svg') }}" alt="">Get 30 day free trial
-                            </li>
-                            <li><img src="{{ asset('images/icon-pricing-benefit-2.svg') }}" alt="">No hidden fees</li>
-                            <li><img src="{{ asset('images/icon-pricing-benefit-3.svg') }}" alt="">Cancel anytime </li>
-                        </ul>
-                    </div>
-                    <!-- Pricing Benifit List End -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Our Pricing Section End -->
-
     <!-- Our Testimonials Section Start -->
     <div class="our-testimonials bg-section">
         <div class="container">
@@ -986,7 +831,8 @@
                                                 <i class="fa-solid fa-star"></i>
                                             </div>
                                             <div class="testimonial-item-content">
-                                                <p>“Starting my LLC with {{ config('app.name') }} was incredibly smooth. They handled
+                                                <p>“Starting my LLC with {{ config('app.name') }} was incredibly smooth.
+                                                    They handled
                                                     all the state filings and EIN acquisition while I focused on my
                                                     product. Highly recommended!”</p>
                                             </div>
@@ -1022,7 +868,8 @@
                                             <div class="testimonial-item-content">
                                                 <p>“The best platform for US business formation. The dashboard is
                                                     intuitive, and the support team is expert in all things compliance.
-                                                    {{ config('app.name') }} is a game changer.”</p>
+                                                    {{ config('app.name') }} is a game changer.”
+                                                </p>
                                             </div>
                                         </div>
                                         <div class="testimonial-item-author">
@@ -1090,7 +937,8 @@
                         <div class="faqs-content-list wow fadeInUp" data-wow-delay="0.2s">
                             <ul>
                                 <li><i class="fa-solid fa-check"></i> Fast processing and official state filings</li>
-                                <li><i class="fa-solid fa-check"></i> Ongoing compliance and registered agent support</li>
+                                <li><i class="fa-solid fa-check"></i> Ongoing compliance and registered agent support
+                                </li>
                                 <li><i class="fa-solid fa-check"></i> Expert guidance on US entity requirements</li>
                             </ul>
                         </div>
@@ -1155,7 +1003,8 @@
                             <div id="collapse3" class="accordion-collapse collapse" role="region"
                                 aria-labelledby="heading3" data-bs-parent="#accordion">
                                 <div class="accordion-body">
-                                    <p>Yes! {{ config('app.name') }} helps international founders register US entities without a social
+                                    <p>Yes! {{ config('app.name') }} helps international founders register US entities
+                                        without a social
                                         security number or physical address. We handle everything digitally.</p>
                                 </div>
                             </div>

@@ -29,7 +29,7 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
 
     // Manage User State
     public ?int $managingUserId = null;
-    public string $manageTab = 'wallet'; // wallet, staking
+    public string $manageTab = 'wallet'; // wallet, staking, trading
     public ?int $contactUserId = null;
 
     public function showContact(int $userId)
@@ -56,6 +56,10 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
 
     public string $rewardAdjustmentMode = 'credit'; // credit, debit
 
+    // Trading Adjustment State
+    public string $tradingBalanceAmount = '';
+
+    public string $tradingAdjustmentType = 'credit'; // credit, debit
     public function mount()
     {
         if (!Auth::user()->isManager()) {
@@ -92,11 +96,21 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
         $this->dispatch('notify', message: 'User deleted successfully.', type: 'success');
     }
 
-    public function manageUser(int $userId): void
+    public function manageUser(int $userId, string $tab = 'wallet'): void
     {
         $this->managingUserId = $userId;
-        $this->manageTab = 'wallet';
+        $this->manageTab = $tab;
         $this->resetAdjustmentFields();
+    }
+
+    public function manageTrading(int $userId): void
+    {
+        $this->manageUser($userId, 'trading');
+    }
+
+    public function manageStaking(int $userId): void
+    {
+        $this->manageUser($userId, 'staking');
     }
 
     public function closeModal(): void
@@ -112,6 +126,8 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
         $this->rewardAmount = '';
         $this->rewardAdjustmentMode = 'credit';
         $this->selectedStakeId = null;
+        $this->tradingBalanceAmount = '';
+        $this->tradingAdjustmentType = 'credit';
     }
 
     public function applyWalletAdjustment(): void
@@ -223,6 +239,38 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
     }
 
 
+    public function applyTradingAdjustment(): void
+    {
+        $this->validate([
+            'tradingBalanceAmount' => 'required|numeric|min:0.01',
+            'tradingAdjustmentType' => 'required|in:credit,debit',
+        ]);
+
+        $user = User::findOrFail($this->managingUserId);
+        $tradingWallet = $user->tradingWallet;
+
+        if (!$tradingWallet) {
+            $tradingWallet = $user->tradingWallet()->create(['balance' => 0, 'total_profit' => 0]);
+        }
+
+        $amount = (float) $this->tradingBalanceAmount;
+        $currentBalance = (float) $tradingWallet->balance;
+
+        if ($this->tradingAdjustmentType === 'debit') {
+            if ($currentBalance < $amount) {
+                $this->addError('tradingBalanceAmount', 'Insufficient trading balance for debit.');
+
+                return;
+            }
+            $tradingWallet->decrement('balance', $amount);
+        } else {
+            $tradingWallet->increment('balance', $amount);
+        }
+
+        $this->resetAdjustmentFields();
+        $this->dispatch('notify', message: 'Trading balance adjusted successfully!');
+    }
+
     public function addStakeReward(): void
     {
         $this->validate([
@@ -318,7 +366,7 @@ new #[Layout('layouts::dashboard'), Title('Manage Clients')] class extends Compo
     #[Computed]
     public function managingUser(): ?User
     {
-        return $this->managingUserId ? User::with(['wallet', 'stakes'])->find($this->managingUserId) : null;
+        return $this->managingUserId ? User::with(['wallet', 'stakes', 'tradingWallet'])->find($this->managingUserId) : null;
     }
 
     #[Computed]

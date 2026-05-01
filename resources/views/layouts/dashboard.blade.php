@@ -92,7 +92,8 @@
                     <a href="{{ route('web.home') }}" class="flex items-center gap-3 group/logo">
                         <div
                             class="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-primary-content shadow-lg shadow-primary/30 rotate-3 transition-transform group-hover/logo:scale-110 group-hover/logo:rotate-6">
-                            <img src="{{ asset('favicon.ico') }}" alt="{{ config('app.name') }}" class="w-6 h-6 -rotate-3">
+                            <img src="{{ asset('favicon.ico') }}" alt="{{ config('app.name') }}"
+                                class="w-6 h-6 -rotate-3">
                         </div>
                         <div class="flex flex-col">
                             <span
@@ -136,6 +137,14 @@
                                         <span class="font-bold tracking-tight">Crypto Assets</span>
                                     </a>
                                 </li>
+                                <li>
+                                    <a href="{{ route('app.copy-trading') }}" wire:navigate
+                                        class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.copy-trading') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
+                                        <i data-lucide="layers"
+                                            class="w-5 h-5 {{ request()->routeIs('app.copy-trading') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
+                                        <span class="font-bold tracking-tight">Copy Experts</span>
+                                    </a>
+                                </li>
                             @elseif(auth()->check() && auth()->user()->isManager())
                                 <li>
                                     <a href="{{ route('app.clients') }}" wire:navigate
@@ -150,7 +159,23 @@
                                         class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.wallets') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
                                         <i data-lucide="wallet"
                                             class="w-5 h-5 {{ request()->routeIs('app.wallets') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
-                                        <span class="font-bold tracking-tight">View Wallets</span>
+                                        <span class="font-bold tracking-tight">Manage Wallets</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('app.traders') }}" wire:navigate
+                                        class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.traders') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
+                                        <i data-lucide="user-plus"
+                                            class="w-5 h-5 {{ request()->routeIs('app.traders') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
+                                        <span class="font-bold tracking-tight">Manage Traders</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('app.manage-trades') }}" wire:navigate
+                                        class="flex gap-3 p-3 rounded-xl group transition-all duration-300 text-sm {{ request()->routeIs('app.manage-trades') ? 'bg-primary text-primary-content shadow-lg shadow-primary/20' : 'hover:bg-base-200' }}">
+                                        <i data-lucide="activity"
+                                            class="w-5 h-5 {{ request()->routeIs('app.manage-trades') ? '' : 'text-base-content/40 group-hover:text-primary' }}"></i>
+                                        <span class="font-bold tracking-tight">Manage Trades</span>
                                     </a>
                                 </li>
                             @endif

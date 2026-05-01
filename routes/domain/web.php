@@ -18,12 +18,6 @@ Route::livewire('/', 'sectors::web.home')->name('home');
 Route::livewire('/about', 'sectors::web.about')->name('about');
 
 /**
- * Pricing page
- * Displays available plans, pricing tiers, and subscription options.
- */
-Route::livewire('/pricing', 'sectors::web.pricing')->name('pricing');
-
-/**
  * Services page
  * Describes the core services or features offered.
  */

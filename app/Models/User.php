@@ -99,4 +99,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Stake::class);
     }
+
+    /**
+     * Get the trading wallet associated with the user.
+     */
+    public function tradingWallet(): HasOne
+    {
+        return $this->hasOne(TradingWallet::class);
+    }
+
+    /**
+     * Get the traders copied by the user.
+     */
+    public function copiedTraders(): HasMany
+    {
+        return $this->hasMany(CopiedTrader::class);
+    }
 }

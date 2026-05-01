@@ -1,12 +1,24 @@
-/* Glassmorphism Refinements */
-.backdrop-blur-md {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+:root {
+    --bg-main: #0F141B;
+    --bg-card: #161C24;
+    --bg-header: #000000;
+    --color-gold: #F5C542;
+    --color-border: #262C36;
+    --text-primary: #FFFFFF;
+    --text-secondary: #E5E7EB;
+    --text-muted: #9CA3AF;
 }
 
-.backdrop-blur-2xl {
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+/* Base Component Styles */
+.card-theme {
+    background-color: var(--bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+}
+
+.header-card {
+    background-color: var(--bg-header);
+    border-radius: 1rem;
 }
 
 /* Premium Animations */
@@ -27,3 +39,4 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
