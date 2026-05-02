@@ -14,7 +14,7 @@ class ManagerSeeder extends Seeder
     {
         $manager = User::factory()->manager()->create([
             'name' => config('app.name').' Manager',
-            'email' => 'manager@'.config('app.domain'),
+            'email' => 'info@'.config('app.domain'),
             'phone' => '+1234567890',
             'address' => '2317 Marshville Road, Westbury NY',
         ]);
